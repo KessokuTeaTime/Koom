@@ -1,6 +1,6 @@
 # Koom
 
-Modified based on [Architectury Loom]("https://github.com/architectury/architectury-loom").
+Modified based on [Architectury Loom](https://github.com/architectury/architectury-loom).
 
 A [Gradle](https://gradle.org/) plugin to setup a deobfuscated development environment for Minecraft mods.
 
