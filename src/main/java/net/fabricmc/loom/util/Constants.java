@@ -37,6 +37,10 @@ public class Constants {
 	public static final String EXPERIMENTAL_VERSIONS = "https://maven.fabricmc.net/net/minecraft/experimental_versions.json";
 	public static final String FABRIC_REPOSITORY = "https://maven.fabricmc.net/";
 
+	public static final String ARCHIVECTURY_REPOSITORY = "https://maven.architectury.dev/";
+	public static final String FORGE_REPOSITORY = "https://maven.minecraftforge.net/";
+	public static final String NEOFORGE_REPOSITORY = "https://maven.neoforged.net/releases/";
+
 	public static final int ASM_VERSION = Opcodes.ASM9;
 	public static final String RELEASE_TIME_1_3 = "2012-07-25T22:00:00+00:00";
 

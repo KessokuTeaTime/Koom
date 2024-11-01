@@ -267,22 +267,25 @@ public interface LoomGradleExtensionAPI {
 
 	boolean isSilentMojangMappingsLicenseEnabled();
 
+	@Deprecated
 	Provider<ModPlatform> getPlatform();
 
+	Property<ModPlatform> getModPlatform();
+
 	default boolean isForgeLike() {
-		return getPlatform().get().isForgeLike();
+		return getModPlatform().get().isForgeLike();
 	}
 
 	default boolean isForge() {
-		return getPlatform().get() == ModPlatform.FORGE;
+		return getModPlatform().get() == ModPlatform.FORGE;
 	}
 
 	default boolean isNeoForge() {
-		return getPlatform().get() == ModPlatform.NEOFORGE;
+		return getModPlatform().get() == ModPlatform.NEOFORGE;
 	}
 
 	default boolean isQuilt() {
-		return getPlatform().get() == ModPlatform.QUILT;
+		return getModPlatform().get() == ModPlatform.QUILT;
 	}
 
 	void setGenerateSrgTiny(Boolean generateSrgTiny);

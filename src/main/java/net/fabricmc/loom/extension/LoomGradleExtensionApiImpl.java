@@ -95,7 +95,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	private static final String PLATFORM_PROPERTY = "loom.platform";
 
 	protected final DeprecationHelper deprecationHelper;
-	@Deprecated()
+	@Deprecated
 	protected final ListProperty<JarProcessor> jarProcessors;
 	protected final ConfigurableFileCollection log4jConfigs;
 	protected final RegularFileProperty accessWidener;
@@ -129,6 +129,8 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	// ===================
 	//  Architectury Loom
 	// ===================
+	private final Property<ModPlatform> modPlatform;
+	@Deprecated
 	private Provider<ModPlatform> platform;
 	private final Property<Boolean> silentMojangMappingsLicense;
 	public Boolean generateSrgTiny = null;
@@ -199,10 +201,20 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 		interfaceInjection(interfaceInjection -> {
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
+		this.modPlatform = project.getObjects().property(ModPlatform.class).convention(ModPlatform.FABRIC);
+		this.modPlatform.finalizeValueOnRead();
 		this.platform = project.provider(Suppliers.memoize(() -> {
 			Object platformProperty = project.findProperty(PLATFORM_PROPERTY);
 
-			if (platformProperty != null) {
+			if (modPlatform != null) {
+				ModPlatform platform = ModPlatform.valueOf(modPlatform.get().id().toUpperCase(Locale.ROOT));
+
+				if (platform.isExperimental()) {
+					project.getLogger().lifecycle("{} support is experimental. Please report any issues!", platform.displayName());
+				}
+
+				return platform;
+			} else if (platformProperty != null) {
 				ModPlatform platform = ModPlatform.valueOf(Objects.toString(platformProperty).toUpperCase(Locale.ROOT));
 
 				if (platform.isExperimental()) {
@@ -514,9 +526,15 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 		return silentMojangMappingsLicense.get();
 	}
 
+	@Deprecated
 	@Override
 	public Provider<ModPlatform> getPlatform() {
 		return platform;
+	}
+
+	@Override
+	public Property<ModPlatform> getModPlatform() {
+		return modPlatform;
 	}
 
 	@Override
