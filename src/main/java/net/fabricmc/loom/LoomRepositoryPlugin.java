@@ -50,6 +50,10 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			"org.mcmodlauncher"
 	);
 
+	private static final List<String> NEOFORGE_GROUPS = List.of(
+			"net.neoforged"
+	);
+
 	@Override
 	public void apply(@NotNull PluginAware target) {
 		if (target instanceof Settings settings) {
@@ -75,7 +79,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 
 		repositories.maven(repo -> {
 			repo.setName("Architectury");
-			repo.setUrl("https://maven.architectury.dev/");
+			repo.setUrl(MirrorUtil.getArchitecturyRepository(target));
 			repo.mavenContent(content -> {
 				content.includeGroup("dev.architectury");
 			});
@@ -102,12 +106,29 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 		});
 		repositories.maven(repo -> {
 			repo.setName("Forge");
-			repo.setUrl("https://maven.minecraftforge.net/");
+			repo.setUrl(MirrorUtil.getForgeRepository(target));
 
 			repo.content(descriptor -> {
 				// Only include these groups to avoid slowing down/hanging the build,
 				// or downloading incorrect artifacts.
 				for (String group : FORGE_GROUPS) {
+					descriptor.includeGroupAndSubgroups(group);
+				}
+			});
+			repo.metadataSources(sources -> {
+				sources.mavenPom();
+				sources.ignoreGradleMetadataRedirection();
+			});
+		});
+
+		repositories.maven(repo -> {
+			repo.setName("NeoForged");
+			repo.setUrl(MirrorUtil.getNeoForgeRepository(target));
+
+			repo.content(descriptor -> {
+				// Only include these groups to avoid slowing down/hanging the build,
+				// or downloading incorrect artifacts.
+				for (String group : NEOFORGE_GROUPS) {
 					descriptor.includeGroupAndSubgroups(group);
 				}
 			});

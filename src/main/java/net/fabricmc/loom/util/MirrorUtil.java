@@ -66,4 +66,28 @@ public class MirrorUtil {
 
 		return Constants.FABRIC_REPOSITORY;
 	}
+
+	public static String getArchitecturyRepository(ExtensionAware aware) {
+		if (aware.getExtensions().getExtraProperties().has("loom_architectury_repository")) {
+			return String.valueOf(aware.getExtensions().getExtraProperties().get("loom_architectury_repository"));
+		}
+
+		return Constants.ARCHIVECTURY_REPOSITORY;
+	}
+
+	public static String getForgeRepository(ExtensionAware aware) {
+		if (aware.getExtensions().getExtraProperties().has("loom_forge_repository")) {
+			return String.valueOf(aware.getExtensions().getExtraProperties().get("loom_forge_repository"));
+		}
+
+		return Constants.FORGE_REPOSITORY;
+	}
+
+	public static String getNeoForgeRepository(ExtensionAware aware) {
+		if (aware.getExtensions().getExtraProperties().has("loom_neoforge_repository")) {
+			return String.valueOf(aware.getExtensions().getExtraProperties().get("loom_neoforge_repository"));
+		}
+
+		return Constants.NEOFORGE_REPOSITORY;
+	}
 }
