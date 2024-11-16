@@ -24,26 +24,17 @@
 
 package net.fabricmc.loom.util.gradle;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.io.File;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
 import org.gradle.api.Project;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.invocation.Gradle;
-import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.JavaExec;
 
 import net.fabricmc.loom.util.Constants;
 
 public final class GradleUtils {
-	@Nullable
-	// TODO remove when updating loom to Gradle 8.1
-	public static final MethodHandle JavaExecSpec_getJvmArguments = getJavaExecSpec_getJvmArguments();
-
 	private GradleUtils() {
 	}
 
@@ -92,12 +83,11 @@ public final class GradleUtils {
 		return getBooleanPropertyProvider(project, key).getOrElse(false);
 	}
 
-	// TODO remove when updating loom to Gradle 8.1
-	private static MethodHandle getJavaExecSpec_getJvmArguments() {
-		try {
-			return MethodHandles.publicLookup().findVirtual(JavaExec.class, "getJvmArguments", MethodType.methodType(ListProperty.class));
-		} catch (NoSuchMethodException | IllegalAccessException ignored) {
-			return null;
-		}
+	// A hack to include the given file in the configuration cache input
+	// this ensures that configuration cache is invalidated when the file changes
+	public static File configurationInputFile(Project project, File file) {
+		final RegularFileProperty property = project.getObjects().fileProperty();
+		property.set(file);
+		return property.getAsFile().get();
 	}
 }
