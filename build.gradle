@@ -65,7 +65,11 @@ if (!isSnapshot) {
 logger.lifecycle(":building plugin v${version}")
 
 // We must build against the version of Kotlin Gradle ships with.
-def kotlinVersion = KotlinDslVersion.current().getKotlinVersion()
+def props = new Properties()
+Project.class.getClassLoader().getResource("gradle-kotlin-dsl-versions.properties").openStream().withCloseable {
+	props.load(it)
+}
+def kotlinVersion = props.getProperty("kotlin")
 if (libs.versions.kotlin.get() != kotlinVersion) {
 	throw new IllegalStateException("Requires Kotlin version: ${kotlinVersion}")
 }
@@ -334,7 +338,6 @@ tasks.withType(Test).configureEach {
 
 
 import org.gradle.api.internal.artifacts.configurations.ConfigurationRoles
-import org.gradle.launcher.cli.KotlinDslVersion
 import org.gradle.util.GradleVersion
 import org.w3c.dom.Document
 import org.w3c.dom.Element

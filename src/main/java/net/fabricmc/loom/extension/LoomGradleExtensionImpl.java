@@ -41,7 +41,6 @@ import org.gradle.api.configuration.BuildFeatures;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Provider;
 
 import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.api.ForgeExtensionAPI;
@@ -63,11 +62,9 @@ import net.fabricmc.loom.configuration.providers.minecraft.mapped.IntermediaryMi
 import net.fabricmc.loom.configuration.providers.minecraft.mapped.MojangMappedMinecraftProvider;
 import net.fabricmc.loom.configuration.providers.minecraft.mapped.NamedMinecraftProvider;
 import net.fabricmc.loom.configuration.providers.minecraft.mapped.SrgMinecraftProvider;
-import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.ModPlatform;
 import net.fabricmc.loom.util.download.Download;
 import net.fabricmc.loom.util.download.DownloadBuilder;
-import net.fabricmc.loom.util.gradle.GradleUtils;
 
 public abstract class LoomGradleExtensionImpl extends LoomGradleExtensionApiImpl implements LoomGradleExtension {
 	private final Project project;
@@ -86,7 +83,6 @@ public abstract class LoomGradleExtensionImpl extends LoomGradleExtensionApiImpl
 	private MojangMappedMinecraftProvider<?> mojangMappedMinecraftProvider;
 	private InstallerData installerData;
 	private boolean refreshDeps;
-	private final Provider<Boolean> multiProjectOptimisation;
 	private final ListProperty<LibraryProcessorManager.LibraryProcessorFactory> libraryProcessorFactories;
 	private final LoomProblemReporter problemReporter;
 	private final boolean configurationCacheActive;
@@ -124,22 +120,12 @@ public abstract class LoomGradleExtensionImpl extends LoomGradleExtensionApiImpl
 		});
 
 		refreshDeps = manualRefreshDeps();
-		multiProjectOptimisation = GradleUtils.getBooleanPropertyProvider(project, Constants.Properties.MULTI_PROJECT_OPTIMISATION);
 		libraryProcessorFactories = project.getObjects().listProperty(LibraryProcessorManager.LibraryProcessorFactory.class);
 		libraryProcessorFactories.addAll(LibraryProcessorManager.DEFAULT_LIBRARY_PROCESSORS);
 		libraryProcessorFactories.finalizeValueOnRead();
 
 		configurationCacheActive = getBuildFeatures().getConfigurationCache().getActive().get();
 		isolatedProjectsActive = getBuildFeatures().getIsolatedProjects().getActive().get();
-
-		// Fundamentally impossible to support multi-project optimisation with the configuration cache and/or isolated projects.
-		if (multiProjectOptimisation.get() && configurationCacheActive) {
-			throw new UnsupportedOperationException("Multi-project optimisation is not supported with the configuration cache");
-		}
-
-		if (multiProjectOptimisation.get() && isolatedProjectsActive) {
-			throw new UnsupportedOperationException("Isolated projects are not supported with multi-project optimisation");
-		}
 
 		if (configurationCacheActive) {
 			project.getLogger().warn("Loom support for the Gradle configuration cache is highly experimental and may not work as expected. Please report any issues you encounter.");
@@ -313,11 +299,6 @@ public abstract class LoomGradleExtensionImpl extends LoomGradleExtensionApiImpl
 	@Override
 	public void setRefreshDeps(boolean refreshDeps) {
 		this.refreshDeps = refreshDeps;
-	}
-
-	@Override
-	public boolean multiProjectOptimisation() {
-		return multiProjectOptimisation.getOrElse(false);
 	}
 
 	@Override

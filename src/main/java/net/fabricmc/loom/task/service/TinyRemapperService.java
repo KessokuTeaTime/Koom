@@ -46,7 +46,6 @@ import org.gradle.api.tasks.SourceSet;
 import org.jetbrains.annotations.Nullable;
 
 import net.fabricmc.loom.LoomGradleExtension;
-import net.fabricmc.loom.api.mappings.layered.MappingsNamespace;
 import net.fabricmc.loom.build.IntermediaryNamespaces;
 import net.fabricmc.loom.build.mixin.AnnotationProcessorInvoker;
 import net.fabricmc.loom.extension.RemapperExtensionHolder;
@@ -71,7 +70,6 @@ public class TinyRemapperService implements SharedService {
 		final LoomGradleExtension extension = LoomGradleExtension.get(project);
 		final boolean legacyMixin = extension.getMixin().getUseLegacyMixinAp().get();
 		final @Nullable KotlinClasspathService kotlinClasspathService = KotlinClasspathService.getOrCreateIfRequired(serviceManager, project);
-		boolean multiProjectOptimisation = extension.multiProjectOptimisation();
 
 		// Generates an id that is used to share the remapper across projects. This tasks in the remap jar task name to handle custom remap jar tasks separately.
 		final var joiner = new StringJoiner(":");
@@ -82,9 +80,8 @@ public class TinyRemapperService implements SharedService {
 			joiner.add("kotlin-" + kotlinClasspathService.version());
 		}
 
-		if (remapJarTask.getRemapperIsolation().get() || !multiProjectOptimisation) {
-			joiner.add(project.getPath());
-		}
+		// TODO remove this when removing shared service manager.
+		joiner.add(project.getPath());
 
 		extension.getKnownIndyBsms().get().stream().sorted().forEach(joiner::add);
 
@@ -107,20 +104,6 @@ public class TinyRemapperService implements SharedService {
 
 		final ConfigurationContainer configurations = project.getConfigurations();
 		ConfigurableFileCollection excludedMinecraftJars = project.files();
-
-		// Exclude none root minecraft jars.
-		if (multiProjectOptimisation && !extension.isRootProject()) {
-			MappingsNamespace mappingsNamespace = MappingsNamespace.of(from);
-
-			if (mappingsNamespace != null) {
-				for (Path minecraftJar : extension.getMinecraftJars(mappingsNamespace)) {
-					excludedMinecraftJars.from(minecraftJar.toFile());
-				}
-			} else {
-				// None fatal as this is a performance optimisation.
-				project.getLogger().warn("Unable to find minecraft jar for namespace {}", from);
-			}
-		}
 
 		List<Path> classPath = remapJarTask.getClasspath()
 				.minus(configurations.getByName(Constants.Configurations.MINECRAFT_COMPILE_LIBRARIES))
