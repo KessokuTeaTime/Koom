@@ -91,8 +91,8 @@ import net.fabricmc.loom.util.ExceptionUtil;
 import net.fabricmc.loom.util.ProcessUtil;
 import net.fabricmc.loom.util.gradle.GradleUtils;
 import net.fabricmc.loom.util.gradle.SourceSetHelper;
-import net.fabricmc.loom.util.service.ScopedSharedServiceManager;
-import net.fabricmc.loom.util.service.SharedServiceManager;
+import net.fabricmc.loom.util.service.ScopedServiceFactory;
+import net.fabricmc.loom.util.service.ServiceFactory;
 
 public abstract class CompileConfiguration implements Runnable {
 	@Inject
@@ -110,8 +110,8 @@ public abstract class CompileConfiguration implements Runnable {
 			javadoc.setClasspath(main.getOutput().plus(main.getCompileClasspath()));
 		});
 
-		afterEvaluationWithService((serviceManager) -> {
-			final ConfigContext configContext = new ConfigContextImpl(getProject(), serviceManager, extension);
+		afterEvaluationWithService((serviceFactory) -> {
+			final ConfigContext configContext = new ConfigContextImpl(getProject(), serviceFactory, extension);
 
 			MinecraftSourceSets.get(getProject()).afterEvaluate(getProject());
 
@@ -129,7 +129,7 @@ public abstract class CompileConfiguration implements Runnable {
 
 				LoomDependencyManager dependencyManager = new LoomDependencyManager();
 				extension.setDependencyManager(dependencyManager);
-				dependencyManager.handleDependencies(getProject(), serviceManager);
+				dependencyManager.handleDependencies(getProject(), serviceFactory);
 			} catch (Exception e) {
 				ExceptionUtil.processException(e, getProject());
 				disownLock();
@@ -159,7 +159,7 @@ public abstract class CompileConfiguration implements Runnable {
 				//   because of https://github.com/architectury/architectury-loom/issues/72.
 				if (!ModConfigurationRemapper.isCIBuild()) {
 					try {
-						ForgeSourcesRemapper.addBaseForgeSources(getProject());
+						ForgeSourcesRemapper.addBaseForgeSources(getProject(), configContext.serviceFactory());
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -225,7 +225,7 @@ public abstract class CompileConfiguration implements Runnable {
 		setupDependencyProviders(project, extension);
 
 		final DependencyInfo mappingsDep = DependencyInfo.create(getProject(), Configurations.MAPPINGS);
-		final MappingConfiguration mappingConfiguration = MappingConfiguration.create(getProject(), configContext.serviceManager(), mappingsDep, minecraftProvider);
+		final MappingConfiguration mappingConfiguration = MappingConfiguration.create(getProject(), configContext.serviceFactory(), mappingsDep, minecraftProvider);
 		extension.setMappingConfiguration(mappingConfiguration);
 
 		if (extension.isForgeLike()) {
@@ -241,7 +241,7 @@ public abstract class CompileConfiguration implements Runnable {
 		}
 
 		if (minecraftProvider instanceof ForgeMinecraftProvider patched) {
-			patched.getPatchedProvider().remapJar();
+			patched.getPatchedProvider().remapJar(configContext.serviceFactory());
 		}
 
 		// Provide the remapped mc jars
@@ -540,10 +540,12 @@ public abstract class CompileConfiguration implements Runnable {
 		dependencyProviders.handleDependencies(project);
 	}
 
-	private void afterEvaluationWithService(Consumer<SharedServiceManager> consumer) {
+	private void afterEvaluationWithService(Consumer<ServiceFactory> consumer) {
 		GradleUtils.afterSuccessfulEvaluation(getProject(), () -> {
-			try (var serviceManager = new ScopedSharedServiceManager()) {
-				consumer.accept(serviceManager);
+			try (var serviceFactory = new ScopedServiceFactory()) {
+				consumer.accept(serviceFactory);
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
 			}
 		});
 	}

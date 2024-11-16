@@ -29,18 +29,18 @@ import org.gradle.api.Project;
 import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.configuration.mods.ModConfigurationRemapper;
 import net.fabricmc.loom.util.SourceRemapper;
-import net.fabricmc.loom.util.service.SharedServiceManager;
+import net.fabricmc.loom.util.service.ServiceFactory;
 
 public class LoomDependencyManager {
-	public void handleDependencies(Project project, SharedServiceManager serviceManager) {
+	public void handleDependencies(Project project, ServiceFactory serviceFactory) {
 		project.getLogger().info(":setting up loom dependencies");
 		LoomGradleExtension extension = LoomGradleExtension.get(project);
 
-		SourceRemapper sourceRemapper = new SourceRemapper(project, serviceManager, true);
+		SourceRemapper sourceRemapper = new SourceRemapper(project, serviceFactory, true);
 		String platformSuffix = extension.isForgeLike() ? "_forge" : extension.isQuilt() ? "_arch_quilt" : "";
 		String mappingsIdentifier = extension.getMappingConfiguration().mappingsIdentifier() + platformSuffix;
 
-		ModConfigurationRemapper.supplyModConfigurations(project, serviceManager, mappingsIdentifier, extension, sourceRemapper);
+		ModConfigurationRemapper.supplyModConfigurations(project, serviceFactory, mappingsIdentifier, extension, sourceRemapper);
 
 		sourceRemapper.remapAll();
 

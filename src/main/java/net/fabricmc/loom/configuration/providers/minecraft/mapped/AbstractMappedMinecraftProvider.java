@@ -56,7 +56,6 @@ import net.fabricmc.loom.configuration.providers.minecraft.SignatureFixerApplyVi
 import net.fabricmc.loom.extension.LoomFiles;
 import net.fabricmc.loom.util.SidedClassVisitor;
 import net.fabricmc.loom.util.TinyRemapperHelper;
-import net.fabricmc.loom.util.service.ScopedSharedServiceManager;
 import net.fabricmc.loom.util.srg.InnerClassRemapper;
 import net.fabricmc.loom.util.srg.RemapObjectHolderVisitor;
 import net.fabricmc.mappingio.tree.MemoryMappingTree;
@@ -206,11 +205,11 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 		Files.deleteIfExists(remappedJars.outputJarPath());
 
 		final Set<String> classNames = extension.isForgeLike() ? InnerClassRemapper.readClassNames(remappedJars.inputJar()) : Set.of();
-		final Map<String, String> remappedSignatures = SignatureFixerApplyVisitor.getRemappedSignatures(getTargetNamespace() == MappingsNamespace.INTERMEDIARY, mappingConfiguration, getProject(), configContext.serviceManager(), toM);
+		final Map<String, String> remappedSignatures = SignatureFixerApplyVisitor.getRemappedSignatures(getTargetNamespace() == MappingsNamespace.INTERMEDIARY, mappingConfiguration, getProject(), configContext.serviceFactory(), toM);
 		final MinecraftVersionMeta.JavaVersion javaVersion = minecraftProvider.getVersionInfo().javaVersion();
 		final boolean fixRecords = javaVersion != null && javaVersion.majorVersion() >= 16;
 
-		TinyRemapper remapper = TinyRemapperHelper.getTinyRemapper(getProject(), configContext.serviceManager(), fromM, toM, fixRecords, (builder) -> {
+		TinyRemapper remapper = TinyRemapperHelper.getTinyRemapper(getProject(), configContext.serviceFactory(), fromM, toM, fixRecords, (builder) -> {
 			builder.extraPostApplyVisitor(new SignatureFixerApplyVisitor(remappedSignatures));
 			if (extension.isNeoForge()) builder.extension(new MixinExtension(inputTag -> true));
 			configureRemapper(remappedJars, builder);
@@ -234,21 +233,19 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 		getMavenHelper(remappedJars.type()).savePom();
 
 		if (extension.isForgeLikeAndOfficial()) {
-			try (var serviceManager = new ScopedSharedServiceManager()) {
-				final MappingOption mappingOption = MappingOption.forPlatform(extension);
-				final TinyMappingsService mappingsService = extension.getMappingConfiguration().getMappingsService(serviceManager, mappingOption);
-				final String className;
+			final MappingOption mappingOption = MappingOption.forPlatform(extension);
+			final TinyMappingsService mappingsService = extension.getMappingConfiguration().getMappingsService(project, configContext.serviceFactory(), mappingOption);
+			final String className;
 
-				if (extension.isNeoForge()) {
-					className = "net.neoforged.neoforge.registries.ObjectHolderRegistry";
-				} else {
-					className = "net.minecraftforge.registries.ObjectHolderRegistry";
-				}
-
-				final String sourceNamespace = IntermediaryNamespaces.runtimeIntermediary(project);
-				final MemoryMappingTree mappings = mappingsService.getMappingTree();
-				RemapObjectHolderVisitor.remapObjectHolder(remappedJars.outputJar().getPath(), className, mappings, sourceNamespace, "named");
+			if (extension.isNeoForge()) {
+				className = "net.neoforged.neoforge.registries.ObjectHolderRegistry";
+			} else {
+				className = "net.minecraftforge.registries.ObjectHolderRegistry";
 			}
+
+			final String sourceNamespace = IntermediaryNamespaces.runtimeIntermediary(project);
+			final MemoryMappingTree mappings = mappingsService.getMappingTree();
+			RemapObjectHolderVisitor.remapObjectHolder(remappedJars.outputJar().getPath(), className, mappings, sourceNamespace, "named");
 		}
 	}
 

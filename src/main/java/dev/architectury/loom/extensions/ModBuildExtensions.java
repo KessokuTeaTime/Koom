@@ -27,7 +27,7 @@ import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.FileSystemUtil;
 import net.fabricmc.loom.util.LfWriter;
 import net.fabricmc.loom.util.aw2at.Aw2At;
-import net.fabricmc.loom.util.service.UnsafeWorkQueueHelper;
+import net.fabricmc.loom.util.service.ServiceFactory;
 
 public final class ModBuildExtensions {
 	public static Set<String> readMixinConfigsFromManifest(File jarFile) {
@@ -49,7 +49,7 @@ public final class ModBuildExtensions {
 		}
 	}
 
-	public static void convertAwToAt(SetProperty<String> atAccessWidenersProperty, Path outputFile, Property<String> mappingBuildServiceUuid) throws IOException {
+	public static void convertAwToAt(ServiceFactory serviceFactory, SetProperty<String> atAccessWidenersProperty, Path outputFile, Property<MappingsService.Options> options) throws IOException {
 		if (!atAccessWidenersProperty.isPresent()) {
 			return;
 		}
@@ -84,8 +84,8 @@ public final class ModBuildExtensions {
 				Files.delete(awPath);
 			}
 
-			MappingsService service = UnsafeWorkQueueHelper.get(mappingBuildServiceUuid, MappingsService.class);
-			at = at.remap(service.getMemoryMappingTree(), service.getFromNamespace(), service.getToNamespace());
+			MappingsService service = serviceFactory.get(options);
+			at = at.remap(service.getMemoryMappingTree(), service.getFrom(), service.getTo());
 
 			try (Writer writer = new LfWriter(Files.newBufferedWriter(atPath))) {
 				AccessTransformFormats.FML.write(writer, at);
