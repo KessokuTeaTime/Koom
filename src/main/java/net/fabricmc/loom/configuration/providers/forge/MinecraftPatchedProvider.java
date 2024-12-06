@@ -58,7 +58,6 @@ import dev.architectury.loom.util.MappingOption;
 import dev.architectury.loom.util.TempFiles;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -79,7 +78,6 @@ import net.fabricmc.loom.configuration.providers.minecraft.MinecraftProvider;
 import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.DependencyDownloader;
 import net.fabricmc.loom.util.FileSystemUtil;
-import net.fabricmc.loom.util.MappingsProviderVerbose;
 import net.fabricmc.loom.util.ThreadingUtils;
 import net.fabricmc.loom.util.TinyRemapperHelper;
 import net.fabricmc.loom.util.ZipUtils;
@@ -239,13 +237,7 @@ public class MinecraftPatchedProvider {
 			builder.extension(new MixinExtension(inputTag -> true));
 		}
 
-		TinyRemapper remapper = builder.build();
-
-		if (project.getGradle().getStartParameter().getLogLevel().compareTo(LogLevel.LIFECYCLE) < 0) {
-			MappingsProviderVerbose.saveFile(remapper);
-		}
-
-		return remapper;
+		return builder.build();
 	}
 
 	private void fixParameterAnnotation(Path jarFile) throws Exception {
