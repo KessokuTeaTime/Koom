@@ -37,6 +37,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.common.base.Suppliers;
+
+import net.fabricmc.loom.util.gradle.GradleUtils;
+
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectList;
@@ -218,7 +221,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
 		this.platform = project.provider(Suppliers.memoize(() -> {
-			Object platformProperty = project.findProperty(PLATFORM_PROPERTY);
+			Object platformProperty = GradleUtils.getProperty(project, PLATFORM_PROPERTY);
 
 			if (platformProperty != null) {
 				ModPlatform platform = ModPlatform.valueOf(Objects.toString(platformProperty).toUpperCase(Locale.ROOT));
@@ -230,7 +233,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 				return platform;
 			}
 
-			Object forgeProperty = project.findProperty(FORGE_PROPERTY);
+			Object forgeProperty = GradleUtils.getProperty(project, FORGE_PROPERTY);
 
 			if (forgeProperty != null) {
 				project.getLogger().warn("Project " + project.getPath() + " is using property " + FORGE_PROPERTY + " to enable forge mode. Please use '" + PLATFORM_PROPERTY + " = forge' instead!");
