@@ -480,8 +480,8 @@ public abstract class GenerateSourcesTask extends AbstractLoomTask {
 
 			// Inject Forge's own sources
 			if (getExtension().isForgeLike()) {
-				try (var serviceManager = new ScopedSharedServiceManager()) {
-					ForgeSourcesRemapper.addForgeSources(getProject(), serviceManager, inputJar, outputJar);
+				try (var serviceFactory = new ScopedServiceFactory()) {
+					ForgeSourcesRemapper.addForgeSources(getProject(), serviceFactory, inputJar, outputJar);
 				}
 			}
 
@@ -503,8 +503,8 @@ public abstract class GenerateSourcesTask extends AbstractLoomTask {
 
 		// Inject Forge's own sources
 		if (getExtension().isForgeLike()) {
-			try (var serviceManager = new ScopedSharedServiceManager()) {
-				ForgeSourcesRemapper.addForgeSources(getProject(), serviceManager, inputJar, outputJar);
+			try (var serviceFactory = new ScopedServiceFactory()) {
+				ForgeSourcesRemapper.addForgeSources(getProject(), serviceFactory, inputJar, outputJar);
 			}
 		}
 

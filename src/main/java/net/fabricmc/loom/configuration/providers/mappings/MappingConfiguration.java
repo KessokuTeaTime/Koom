@@ -47,11 +47,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
 import com.google.gson.JsonObject;
 import dev.architectury.loom.util.MappingOption;
-
-import dev.architectury.loom.util.MappingOption;
-
-import net.fabricmc.loom.util.service.ServiceFactory;
-
 import org.apache.tools.ant.util.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -74,6 +69,7 @@ import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.DeletingFileVisitor;
 import net.fabricmc.loom.util.FileSystemUtil;
 import net.fabricmc.loom.util.ZipUtils;
+import net.fabricmc.loom.util.service.ScopedServiceFactory;
 import net.fabricmc.loom.util.service.ServiceFactory;
 import net.fabricmc.loom.util.srg.ForgeMappingsMerger;
 import net.fabricmc.loom.util.srg.MCPReader;
@@ -271,8 +267,8 @@ public class MappingConfiguration {
 			}
 
 			if (Files.notExists(srgToNamedSrg) || extension.refreshDeps()) {
-				try (var serviceManager = new ScopedSharedServiceManager()) {
-					TinyMappingsService mappingsService = getMappingsService(serviceManager, MappingOption.WITH_SRG);
+				try (var serviceFactory = new ScopedServiceFactory()) {
+					TinyMappingsService mappingsService = getMappingsService(project, serviceFactory, MappingOption.WITH_SRG);
 					SrgNamedWriter.writeTo(project.getLogger(), srgToNamedSrg, mappingsService.getMappingTree(), "srg", "named");
 				}
 			}
@@ -384,7 +380,7 @@ public class MappingConfiguration {
 
 	private void readAndMergeMCP(Project project, ServiceFactory serviceFactory, MinecraftProvider minecraftProvider, Path mcpJar) throws Exception {
 		LoomGradleExtension extension = LoomGradleExtension.get(project);
-		IntermediateMappingsService intermediateMappingsService = IntermediateMappingsService.getInstance(serviceManager, project, minecraftProvider);
+		IntermediateMappingsService intermediateMappingsService = serviceFactory.get(IntermediateMappingsService.createOptions(project, minecraftProvider));
 		Path intermediaryTinyPath = intermediateMappingsService.getIntermediaryTiny();
 		SrgProvider provider = extension.getSrgProvider();
 

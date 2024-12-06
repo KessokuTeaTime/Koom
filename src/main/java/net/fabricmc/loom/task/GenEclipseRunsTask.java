@@ -72,7 +72,6 @@ public abstract class GenEclipseRunsTask extends AbstractLoomTask {
 		LoomGradleExtension extension = LoomGradleExtension.get(project);
 
 		List<EclipseRunConfig> runConfigs = new ArrayList<>();
-		File dataRunConfigs = new File(getProject().getRootDir(), eclipseModel.getProject().getName() + "_data.launch");
 
 		for (RunConfigSettings settings : extension.getRunConfigs()) {
 			if (!settings.isIdeConfigGenerated()) {

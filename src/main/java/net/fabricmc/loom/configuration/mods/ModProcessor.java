@@ -174,7 +174,7 @@ public class ModProcessor {
 		}
 
 		MappingOption mappingOption = MappingOption.forPlatform(extension);
-		MemoryMappingTree mappings = mappingConfiguration.getMappingsService(project, serviceManager, mappingOption).getMappingTree();
+		MemoryMappingTree mappings = mappingConfiguration.getMappingsService(project, serviceFactory, mappingOption).getMappingTree();
 		LoggerFilter.replaceSystemOut();
 
 		TinyRemapper.Builder builder = TinyRemapper.newRemapper()

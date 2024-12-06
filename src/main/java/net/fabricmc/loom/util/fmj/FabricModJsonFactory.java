@@ -140,10 +140,10 @@ public final class FabricModJsonFactory {
 
 		if (file == null) {
 			// Try another mod metadata file if fabric.mod.json wasn't found.
-			final @Nullable ModMetadataFile modMetadata = ModMetadataFiles.fromSourceSets(sourceSets);
+			final @Nullable ModMetadataFile modMetadata = ModMetadataFiles.fromSourceSets(project, sourceSets);
 
 			if (modMetadata != null) {
-				return new ModMetadataFabricModJson(modMetadata, new FabricModJsonSource.SourceSetSource(sourceSets));
+				return new ModMetadataFabricModJson(modMetadata, new FabricModJsonSource.SourceSetSource(project, sourceSets));
 			}
 
 			return null;

@@ -57,8 +57,8 @@ import net.fabricmc.loom.util.DependencyDownloader;
 import net.fabricmc.loom.util.FileSystemUtil;
 import net.fabricmc.loom.util.ForgeToolExecutor;
 import net.fabricmc.loom.util.SourceRemapper;
-import net.fabricmc.loom.util.service.ScopedSharedServiceManager;
-import net.fabricmc.loom.util.service.SharedServiceManager;
+import net.fabricmc.loom.util.service.ScopedServiceFactory;
+import net.fabricmc.loom.util.service.ServiceFactory;
 
 // TODO: NeoForge support
 public abstract class GenerateForgePatchedSourcesTask extends AbstractLoomTask {
@@ -94,7 +94,7 @@ public abstract class GenerateForgePatchedSourcesTask extends AbstractLoomTask {
 			throw new UnsupportedOperationException("Cannot run Forge's patched decompilation with a processed Minecraft jar");
 		}
 
-		try (var tempFiles = new TempFiles(); var serviceManager = new ScopedSharedServiceManager()) {
+		try (var tempFiles = new TempFiles(); var serviceFactory = new ScopedServiceFactory()) {
 			Path cache = tempFiles.directory("loom-decompilation");
 
 			// Transform game jar before decompiling
@@ -109,9 +109,9 @@ public abstract class GenerateForgePatchedSourcesTask extends AbstractLoomTask {
 			getLogger().lifecycle(":applying Forge patches");
 			Path patched = sourcePatch(cache, rawDecompiled);
 			// Step 3: remap
-			remap(patched, serviceManager);
+			remap(patched, serviceFactory);
 			// Step 4: add Forge's own sources
-			ForgeSourcesRemapper.addForgeSources(getProject(), serviceManager, null, getOutputJar().get().getAsFile().toPath());
+			ForgeSourcesRemapper.addForgeSources(getProject(), serviceFactory, null, getOutputJar().get().getAsFile().toPath());
 		}
 	}
 
@@ -159,8 +159,8 @@ public abstract class GenerateForgePatchedSourcesTask extends AbstractLoomTask {
 		return output;
 	}
 
-	private void remap(Path input, SharedServiceManager serviceManager) {
-		SourceRemapper remapper = new SourceRemapper(getProject(), serviceManager, "srg", "named");
+	private void remap(Path input, ServiceFactory serviceFactory) {
+		SourceRemapper remapper = new SourceRemapper(getProject(), serviceFactory, "srg", "named");
 		remapper.scheduleRemapSources(input.toFile(), getOutputJar().get().getAsFile(), false, true, () -> {
 		});
 		remapper.remapAll();
