@@ -86,13 +86,8 @@ public abstract class NestableJarGenerationTask extends AbstractLoomTask {
 	@Input
 	protected abstract MapProperty<String, Metadata> getJarIds();
 
-	@ApiStatus.Internal
-	@Input
-	protected abstract Property<ModPlatform> getModPlatform();
-
 	@Inject
 	public NestableJarGenerationTask() {
-		getModPlatform().value(getExtension().getPlatform()).finalizeValue();
 	}
 
 	@TaskAction

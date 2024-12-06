@@ -479,7 +479,7 @@ public abstract class GenerateSourcesTask extends AbstractLoomTask {
 			doWork(null, inputJar, outputJar, lineMapFile, existingJar);
 
 			// Inject Forge's own sources
-			if (getExtension().isForgeLike()) {
+			if (getModPlatform().get().isForgeLike()) {
 				try (var serviceFactory = new ScopedServiceFactory()) {
 					ForgeSourcesRemapper.addForgeSources(getProject(), serviceFactory, inputJar, outputJar);
 				}
@@ -502,7 +502,7 @@ public abstract class GenerateSourcesTask extends AbstractLoomTask {
 		}
 
 		// Inject Forge's own sources
-		if (getExtension().isForgeLike()) {
+		if (getModPlatform().get().isForgeLike()) {
 			try (var serviceFactory = new ScopedServiceFactory()) {
 				ForgeSourcesRemapper.addForgeSources(getProject(), serviceFactory, inputJar, outputJar);
 			}
@@ -517,7 +517,7 @@ public abstract class GenerateSourcesTask extends AbstractLoomTask {
 			return null;
 		}
 
-		if (getExtension().isForgeLike()) {
+		if (getModPlatform().get().isForgeLike()) {
 			// Remove Forge and NeoForge classes from linemap
 			// TODO: We should instead not decompile Forge's classes at all
 			var lineMap = new HashMap<String, ClassLineNumbers.Entry>();
@@ -542,7 +542,7 @@ public abstract class GenerateSourcesTask extends AbstractLoomTask {
 	 * but this is a workaround for that.
 	 */
 	private void removeForgeInnerClassSources(Path sourcesJar) throws IOException {
-		if (!getExtension().isForgeLike()) return;
+		if (!getModPlatform().get().isForgeLike()) return;
 
 		try (FileSystemUtil.Delegate outputFs = FileSystemUtil.getJarFileSystem(sourcesJar, false);
 				Stream<Path> walk = Files.walk(outputFs.getRoot())) {
@@ -652,7 +652,7 @@ public abstract class GenerateSourcesTask extends AbstractLoomTask {
 			}
 
 			// Architectury
-			params.getForge().set(getExtension().isForgeLike());
+			params.getForge().set(getModPlatform().get().isForgeLike());
 		});
 
 		try {

@@ -172,8 +172,7 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 		getTinyRemapperServiceOptions().set(TinyRemapperService.createOptions(this));
 		getMixinRefmapServiceOptions().set(MixinRefmapService.createOptions(this));
 
-		getModPlatform().convention(LoomGradleExtension.get(getProject()).getPlatform());
-		getModPlatform().finalizeValue();
+		getModPlatform().value(LoomGradleExtension.get(getProject()).getPlatform()).finalizeValue();
 
 		getInjectedAccessWidenerPath().convention(LoomGradleExtension.get(getProject()).getAccessWidenerPath());
 	}
