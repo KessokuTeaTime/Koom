@@ -1,7 +1,7 @@
 /*
  * This file is part of fabric-loom, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2022-2023 FabricMC
+ * Copyright (c) 2022-2024 FabricMC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.jvm.toolchain.JavaLauncher;
 import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.jvm.toolchain.JavaToolchainSpec;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaExecSpec;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +47,9 @@ import org.jetbrains.annotations.Nullable;
 public abstract class ForgeToolExecutor {
 	@Inject
 	protected abstract JavaToolchainService getToolchainService();
+
+	@Inject
+	protected abstract ExecOperations getExecOperations();
 
 	@Inject
 	protected abstract Project getProject();
@@ -61,7 +65,7 @@ public abstract class ForgeToolExecutor {
 	}
 
 	/**
-	 * Executes a {@link Project#javaexec(Action) javaexec} action with suppressed output.
+	 * Executes a {@link ExecOperations#javaexec(Action) javaexec} action with suppressed output.
 	 *
 	 * @param project      the project
 	 * @param configurator the {@code javaexec} configuration action
@@ -74,19 +78,19 @@ public abstract class ForgeToolExecutor {
 
 	private ExecResult exec(Action<? super JavaExecSpec> configurator) {
 		final Project project = getProject();
-		return project.javaexec(spec -> {
+		return getExecOperations().javaexec(spec -> {
 			configurator.execute(spec);
 
 			if (shouldShowVerboseStdout(project)) {
 				spec.setStandardOutput(System.out);
 			} else {
-				spec.setStandardOutput(NullOutputStream.NULL_OUTPUT_STREAM);
+				spec.setStandardOutput(NullOutputStream.INSTANCE);
 			}
 
 			if (shouldShowVerboseStderr(project)) {
 				spec.setErrorOutput(System.err);
 			} else {
-				spec.setErrorOutput(NullOutputStream.NULL_OUTPUT_STREAM);
+				spec.setErrorOutput(NullOutputStream.INSTANCE);
 			}
 
 			// Use project toolchain for executing if possible.
