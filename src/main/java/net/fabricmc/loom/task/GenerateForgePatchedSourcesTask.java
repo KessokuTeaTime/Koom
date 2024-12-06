@@ -37,7 +37,8 @@ import codechicken.diffpatch.cli.PatchOperation;
 import codechicken.diffpatch.util.LoggingOutputStream;
 import codechicken.diffpatch.util.PatchMode;
 import com.google.common.base.Stopwatch;
-import dev.architectury.loom.forge.ForgeTools;
+import dev.architectury.loom.forge.tool.ForgeToolValueSource;
+import dev.architectury.loom.forge.tool.ForgeTools;
 import dev.architectury.loom.util.TempFiles;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
@@ -55,7 +56,6 @@ import net.fabricmc.loom.configuration.providers.forge.mcpconfig.steplogic.Const
 import net.fabricmc.loom.configuration.sources.ForgeSourcesRemapper;
 import net.fabricmc.loom.util.DependencyDownloader;
 import net.fabricmc.loom.util.FileSystemUtil;
-import net.fabricmc.loom.util.ForgeToolExecutor;
 import net.fabricmc.loom.util.SourceRemapper;
 import net.fabricmc.loom.util.service.ScopedServiceFactory;
 import net.fabricmc.loom.util.service.ServiceFactory;
@@ -191,7 +191,7 @@ public abstract class GenerateForgePatchedSourcesTask extends AbstractLoomTask {
 
 			final FileCollection classpath = DependencyDownloader.download(getProject(), ForgeTools.SIDE_STRIPPER, false, true);
 
-			ForgeToolExecutor.exec(getProject(), spec -> {
+			ForgeToolValueSource.exec(getProject(), spec -> {
 				spec.setClasspath(classpath);
 				spec.args(
 						"--strip",

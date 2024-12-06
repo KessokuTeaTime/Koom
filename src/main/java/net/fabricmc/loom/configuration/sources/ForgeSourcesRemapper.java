@@ -41,6 +41,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import dev.architectury.loom.forge.tool.ForgeToolExecutor;
 import dev.architectury.loom.util.MappingOption;
 import org.apache.commons.io.output.NullOutputStream;
 import org.cadixdev.lorenz.MappingSet;
@@ -57,7 +58,6 @@ import net.fabricmc.loom.task.GenerateSourcesTask;
 import net.fabricmc.loom.util.DeletingFileVisitor;
 import net.fabricmc.loom.util.DependencyDownloader;
 import net.fabricmc.loom.util.FileSystemUtil;
-import net.fabricmc.loom.util.ForgeToolExecutor;
 import net.fabricmc.loom.util.LoomVersions;
 import net.fabricmc.loom.util.SourceRemapper;
 import net.fabricmc.loom.util.ThreadingUtils;
