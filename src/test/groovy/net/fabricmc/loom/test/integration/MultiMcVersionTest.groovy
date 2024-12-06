@@ -24,6 +24,7 @@
 
 package net.fabricmc.loom.test.integration
 
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -95,7 +96,7 @@ class MultiMcVersionTest extends Specification implements GradleProjectTestTrait
 		then:
 		result.task(":fabric-1.19.3:build").outcome == SUCCESS
 		// Ensure that loom is only loaded once.
-		result.output.count("Fabric Loom:") == 1
+		result.output.count("Isolated projects is enabled, Loom support is highly experimental, not all features will be enabled.") == 1
 
 		where:
 		version << STANDARD_TEST_VERSIONS
