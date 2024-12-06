@@ -33,7 +33,6 @@ import org.gradle.api.invocation.Gradle;
 import org.gradle.api.provider.Provider;
 
 import net.fabricmc.loom.LoomGradleExtension;
-
 import net.fabricmc.loom.util.Constants;
 
 public final class GradleUtils {

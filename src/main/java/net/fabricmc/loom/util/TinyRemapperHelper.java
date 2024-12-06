@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableMap;
 import dev.architectury.loom.util.MappingOption;
-
 import org.gradle.api.Project;
 
 import net.fabricmc.loom.LoomGradleExtension;

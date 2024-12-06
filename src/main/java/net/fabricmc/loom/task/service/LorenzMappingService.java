@@ -28,9 +28,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.function.Supplier;
 
-import dev.architectury.loom.util.MappingOption;
 import com.google.common.base.Suppliers;
-
+import dev.architectury.loom.util.MappingOption;
 import org.cadixdev.lorenz.MappingSet;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Property;
