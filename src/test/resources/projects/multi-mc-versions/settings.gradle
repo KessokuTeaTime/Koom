@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' apply false
+	id 'dev.architectury.loom' apply false
 }
 
 gradle.lifecycle.beforeProject {
@@ -7,7 +7,7 @@ gradle.lifecycle.beforeProject {
 		return
 	}
 
-	apply plugin: 'fabric-loom'
+	apply plugin: 'dev.architectury.loom'
 	apply plugin: 'loom-test-plugin'
 }
 
