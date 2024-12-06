@@ -161,6 +161,11 @@ public class Constants {
 		public static final String LIBRARY_PROCESSORS = "fabric.loom.libraryProcessors";
 		@ApiStatus.Experimental
 		public static final String SANDBOX = "fabric.loom.experimental.sandbox";
+		/**
+		 * When set the version of java that will be assumed that the game will run on, this defaults to the current java version.
+		 * Only set this when you have a good reason to do so, the default should be fine for almost all cases.
+		 */
+		public static final String RUNTIME_JAVA_COMPATIBILITY_VERSION = "fabric.loom.runtimeJavaCompatibilityVersion";
 		public static final String ALLOW_MISMATCHED_PLATFORM_VERSION = "loom.allowMismatchedPlatformVersion";
 		public static final String IGNORE_DEPENDENCY_LOOM_VERSION_VALIDATION = "loom.ignoreDependencyLoomVersionValidation";
 	}

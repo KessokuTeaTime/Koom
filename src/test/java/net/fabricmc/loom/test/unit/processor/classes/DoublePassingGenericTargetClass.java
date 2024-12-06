@@ -22,30 +22,11 @@
  * SOFTWARE.
  */
 
-package net.fabricmc.loom.extension;
+package net.fabricmc.loom.test.unit.processor.classes;
 
-import javax.inject.Inject;
-
-import org.gradle.api.problems.ProblemReporter;
-import org.gradle.api.problems.Problems;
-import org.gradle.api.problems.Severity;
-
-public abstract class LoomProblemReporter {
-	private final ProblemReporter problemReporter;
-
-	@Inject
-	public LoomProblemReporter(Problems problems) {
-		this.problemReporter = problems.forNamespace("net.fabricmc.loom");
-	}
-
-	public void reportSelfResolvingDependencyUsage() {
-		problemReporter.reporting(spec -> spec
-				.id("loom-deprecated-selfresolvingdependency", "SelfResolvingDependency is deprecated")
-				.details("SelfResolvingDependency has been deprecated for removal in Gradle 9")
-				.solution("Please replace usages of SelfResolvingDependency")
-				.documentedAt("https://github.com/gradle/gradle/pull/27420")
-				.severity(Severity.WARNING)
-				.stackLocation()
-		);
+public class DoublePassingGenericTargetClass<F, S> {
+	public static class Pair<F, S> {
+		Pair(F ignoredF, S ignoredS) {
+		}
 	}
 }
