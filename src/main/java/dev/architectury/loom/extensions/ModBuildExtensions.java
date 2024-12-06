@@ -18,9 +18,7 @@ import java.util.jar.Manifest;
 
 import dev.architectury.at.AccessTransformSet;
 import dev.architectury.at.io.AccessTransformFormats;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.SetProperty;
 import org.jetbrains.annotations.Nullable;
 
 import net.fabricmc.loom.task.service.MappingsService;
