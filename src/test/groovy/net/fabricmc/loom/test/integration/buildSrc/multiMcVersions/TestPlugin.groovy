@@ -22,38 +22,26 @@
  * SOFTWARE.
  */
 
-package net.fabricmc.loom.test.unit
+package net.fabricmc.loom.test.integration.buildSrc.multiMcVersions
 
-import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
-import org.gradle.api.internal.catalog.DelegatingProjectDependency
-import org.gradle.api.internal.project.ProjectInternal
-import spock.lang.Specification
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.plugins.BasePluginExtension
 
-import net.fabricmc.loom.util.gradle.GradleUtils
+class TestPlugin implements Plugin<Project> {
+	@Override
+	void apply(Project project) {
+		project.group = "com.example"
+		project.version = "1.0.0"
 
-class GradleUtilsTest extends Specification {
-	def "get default project dependency"() {
-		given:
-		def project = Mock(ProjectInternal)
-		def dependency = new DefaultProjectDependency(project, false)
+		project.getExtensions().configure(BasePluginExtension.class) {
+			it.archivesName = project.rootProject.isolated.name + "-" + project.name
+		}
 
-		when:
-		def result = GradleUtils.getDependencyProject(dependency)
+		def minecraftVersion = project.name.substring(7)
 
-		then:
-		result == project
-	}
-
-	def "get delegated project dependency"() {
-		given:
-		def project = Mock(ProjectInternal)
-		def dependency = new DefaultProjectDependency(project, true)
-		def delegate = new DelegatingProjectDependency(null, dependency)
-
-		when:
-		def result = GradleUtils.getDependencyProject(delegate)
-
-		then:
-		result == project
+		project.getDependencies().add("minecraft", "com.mojang:minecraft:$minecraftVersion")
+		project.getDependencies().add("mappings", "net.fabricmc:yarn:$minecraftVersion+build.1:v2")
+		project.getDependencies().add("modImplementation", "net.fabricmc:fabric-loader:0.16.9")
 	}
 }

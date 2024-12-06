@@ -26,6 +26,7 @@ package net.fabricmc.loom.configuration;
 
 import static net.fabricmc.loom.util.Constants.Configurations;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +35,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -49,6 +51,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
+import org.gradle.api.tasks.testing.Test;
 
 import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.api.InterfaceInjectionExtensionAPI;
@@ -89,6 +92,7 @@ import net.fabricmc.loom.util.ExceptionUtil;
 import net.fabricmc.loom.util.ProcessUtil;
 import net.fabricmc.loom.util.gradle.GradleUtils;
 import net.fabricmc.loom.util.gradle.SourceSetHelper;
+import net.fabricmc.loom.util.gradle.daemon.DaemonUtils;
 import net.fabricmc.loom.util.service.ScopedServiceFactory;
 import net.fabricmc.loom.util.service.ServiceFactory;
 
@@ -129,7 +133,7 @@ public abstract class CompileConfiguration implements Runnable {
 				extension.setDependencyManager(dependencyManager);
 				dependencyManager.handleDependencies(getProject(), serviceFactory);
 			} catch (Exception e) {
-				ExceptionUtil.processException(e, getProject());
+				ExceptionUtil.processException(e, DaemonUtils.Context.fromProject(getProject()));
 				disownLock();
 				throw ExceptionUtil.createDescriptiveWrapper(RuntimeException::new, "Failed to setup Minecraft", e);
 			}
@@ -144,6 +148,7 @@ public abstract class CompileConfiguration implements Runnable {
 			}
 
 			configureDecompileTasks(configContext);
+			configureTestTask();
 
 			if (extension.isForgeLike()) {
 				if (extension.isDataGenEnabled()) {
@@ -333,6 +338,26 @@ public abstract class CompileConfiguration implements Runnable {
 		extension.getMinecraftJarConfiguration().get()
 				.createDecompileConfiguration(getProject())
 				.afterEvaluation();
+	}
+
+	private void configureTestTask() {
+		final LoomGradleExtension extension = LoomGradleExtension.get(getProject());
+
+		if (extension.getMods().isEmpty()) {
+			return;
+		}
+
+		getProject().getTasks().named(JavaPlugin.TEST_TASK_NAME, Test.class, test -> {
+			String classPathGroups = extension.getMods().stream()
+					.map(modSettings ->
+							SourceSetHelper.getClasspath(modSettings, getProject()).stream()
+									.map(File::getAbsolutePath)
+									.collect(Collectors.joining(File.pathSeparator))
+					)
+					.collect(Collectors.joining(File.pathSeparator+File.pathSeparator));;
+
+			test.systemProperty("fabric.classPathGroups", classPathGroups);
+		});
 	}
 
 	private LockFile getLockFile() {
