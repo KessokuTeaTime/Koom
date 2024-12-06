@@ -137,7 +137,8 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 	public abstract RegularFileProperty getInjectedAccessWidenerPath();
 
 	@Input
-	public abstract Property<ModPlatform> getModPlatform();
+	@ApiStatus.Internal
+	protected abstract Property<ModPlatform> getModPlatform();
 
 	@Input
 	@ApiStatus.Internal
