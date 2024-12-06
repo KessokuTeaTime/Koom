@@ -46,8 +46,10 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskProvider;
@@ -127,6 +129,16 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 	@Input
 	public abstract Property<Boolean> getInjectAccessWidener();
 
+	/**
+	 * The path of the access widener to inject if {@link #getInjectAccessWidener() injectAccessWidener} is enabled.
+	 */
+	@InputFile
+	@Optional
+	public abstract RegularFileProperty getInjectedAccessWidenerPath();
+
+	@Input
+	public abstract Property<ModPlatform> getModPlatform();
+
 	@Input
 	@ApiStatus.Internal
 	public abstract Property<Boolean> getUseMixinAP();
@@ -159,12 +171,15 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 
 		getTinyRemapperServiceOptions().set(TinyRemapperService.createOptions(this));
 		getMixinRefmapServiceOptions().set(MixinRefmapService.createOptions(this));
+
+		getModPlatform().convention(LoomGradleExtension.get(getProject()).getPlatform());
+		getModPlatform().finalizeValue();
+
+		getInjectedAccessWidenerPath().convention(LoomGradleExtension.get(getProject()).getAccessWidenerPath());
 	}
 
 	@TaskAction
 	public void run() {
-		final LoomGradleExtension extension = LoomGradleExtension.get(getProject());
-
 		submitWork(RemapAction.class, params -> {
 			if (getAddNestedDependencies().get()) {
 				params.getNestedJars().from(getNestedJars());
@@ -184,14 +199,14 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 				// or if the refmap should be remapped by mixin at runtime.
 				final var refmapRemapType = mixinAp ? ArtifactMetadata.MixinRemapType.MIXIN : ArtifactMetadata.MixinRemapType.STATIC;
 				params.getManifestAttributes().put(Constants.Manifest.MIXIN_REMAP_TYPE, refmapRemapType.manifestValue());
-			} else if (extension.isForge()) {
+			} else if (getModPlatform().get() == ModPlatform.FORGE) {
 				throw new RuntimeException("Forge must have useLegacyMixinAp enabled");
 			}
 
-			params.getPlatform().set(extension.getPlatform());
+			params.getPlatform().set(getModPlatform());
 
-			if (getInjectAccessWidener().get() && extension.getAccessWidenerPath().isPresent()) {
-				params.getInjectAccessWidener().set(extension.getAccessWidenerPath());
+			if (getInjectAccessWidener().get() && getInjectedAccessWidenerPath().isPresent()) {
+				params.getInjectAccessWidener().set(getInjectedAccessWidenerPath());
 			}
 
 			params.getReadMixinConfigsFromManifest().set(getReadMixinConfigsFromManifest());
