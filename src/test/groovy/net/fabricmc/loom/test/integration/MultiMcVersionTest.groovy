@@ -24,7 +24,6 @@
 
 package net.fabricmc.loom.test.integration
 
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
