@@ -37,9 +37,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.common.base.Suppliers;
-
-import net.fabricmc.loom.util.gradle.GradleUtils;
-
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectList;
@@ -90,6 +87,7 @@ import net.fabricmc.loom.util.MirrorUtil;
 import net.fabricmc.loom.util.ModPlatform;
 import net.fabricmc.loom.util.fmj.FabricModJson;
 import net.fabricmc.loom.util.fmj.FabricModJsonFactory;
+import net.fabricmc.loom.util.gradle.GradleUtils;
 import net.fabricmc.loom.util.gradle.SourceSetHelper;
 
 /**
