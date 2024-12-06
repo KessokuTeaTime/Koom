@@ -212,10 +212,6 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 			params.getReadMixinConfigsFromManifest().set(getReadMixinConfigsFromManifest());
 			params.getAtAccessWideners().set(getAtAccessWideners());
 
-			if (!getAtAccessWideners().get().isEmpty()) {
-				params.getMappingsServiceOptions().set(MappingsService.createOptionsWithProjectMappings(getProject(), getSourceNamespace(), getTargetNamespace()));
-			}
-
 			params.getOptimizeFmj().set(getOptimizeFabricModJson().get());
 		});
 	}
@@ -236,7 +232,6 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 
 		Property<TinyRemapperService.Options> getTinyRemapperServiceOptions();
 		ListProperty<MixinRefmapService.Options> getMixinRefmapServiceOptions();
-		Property<MappingsService.Options> getMappingsServiceOptions();
 	}
 
 	public abstract static class RemapAction extends AbstractRemapAction<RemapParams> {
@@ -277,7 +272,13 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 
 				addRefmaps(serviceFactory);
 				addNestedJars();
-				ModBuildExtensions.convertAwToAt(serviceFactory, getParameters().getAtAccessWideners(), outputFile, getParameters().getMappingsServiceOptions());
+
+				if (getParameters().getAtAccessWideners().isPresent()) {
+					final Provider<MappingsService.Options> mappingsServiceOptions = getParameters().getTinyRemapperServiceOptions()
+							.flatMap(TinyRemapperService.Options::getMappings)
+							.map(mappingsOptions -> mappingsOptions.get(0));
+					ModBuildExtensions.convertAwToAt(serviceFactory, getParameters().getAtAccessWideners().get(), outputFile, mappingsServiceOptions);
+				}
 
 				if (!getParameters().getPlatform().get().isForgeLike()) {
 					modifyJarManifest();

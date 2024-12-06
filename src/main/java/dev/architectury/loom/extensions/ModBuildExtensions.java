@@ -19,6 +19,7 @@ import java.util.jar.Manifest;
 import dev.architectury.at.AccessTransformSet;
 import dev.architectury.at.io.AccessTransformFormats;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,13 +50,7 @@ public final class ModBuildExtensions {
 		}
 	}
 
-	public static void convertAwToAt(ServiceFactory serviceFactory, SetProperty<String> atAccessWidenersProperty, Path outputFile, Property<MappingsService.Options> options) throws IOException {
-		if (!atAccessWidenersProperty.isPresent()) {
-			return;
-		}
-
-		Set<String> atAccessWideners = atAccessWidenersProperty.get();
-
+	public static void convertAwToAt(ServiceFactory serviceFactory, Set<String> atAccessWideners, Path outputFile, Provider<MappingsService.Options> options) throws IOException {
 		if (atAccessWideners.isEmpty()) {
 			return;
 		}
