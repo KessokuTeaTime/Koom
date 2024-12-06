@@ -1,7 +1,7 @@
 /*
  * This file is part of fabric-loom, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2022 FabricMC
+ * Copyright (c) 2024 FabricMC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,43 +22,38 @@
  * SOFTWARE.
  */
 
-package net.fabricmc.loom.test.integration
+package net.fabricmc.loom.test.unit
 
+import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
+import org.gradle.api.internal.catalog.DelegatingProjectDependency
+import org.gradle.api.internal.project.ProjectInternal
 import spock.lang.Specification
-import spock.lang.Unroll
 
-import net.fabricmc.loom.test.util.GradleProjectTestTrait
+import net.fabricmc.loom.util.gradle.GradleUtils
 
-import static net.fabricmc.loom.test.LoomTestConstants.PRE_RELEASE_GRADLE
-import static net.fabricmc.loom.test.LoomTestConstants.STANDARD_TEST_VERSIONS
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
-
-class SplitProjectTest extends Specification implements GradleProjectTestTrait {
-	@Unroll
-	def "build (gradle #version)"() {
-		setup:
-		def gradle = gradleProject(project: "splitSources", version: version)
+class GradleUtilsTest extends Specification {
+	def "get default project dependency"() {
+		given:
+		def project = Mock(ProjectInternal)
+		def dependency = new DefaultProjectDependency(project, false)
 
 		when:
-		def result = gradle.run(tasks: ["build", "generateDLIConfig"])
+		def result = GradleUtils.getDependencyProject(dependency)
 
 		then:
-		result.task(":build").outcome == SUCCESS
-		result.task(":test").outcome == SUCCESS
-
-		where:
-		version << STANDARD_TEST_VERSIONS
+		result == project
 	}
 
-	@Unroll
-	def "genSources (gradle #version)"() {
-		setup:
-		def gradle = gradleProject(project: "splitSources", version: PRE_RELEASE_GRADLE)
+	def "get delegated project dependency"() {
+		given:
+		def project = Mock(ProjectInternal)
+		def dependency = new DefaultProjectDependency(project, true)
+		def delegate = new DelegatingProjectDependency(null, dependency)
 
 		when:
-		def result = gradle.run(tasks: ["genSources"])
+		def result = GradleUtils.getDependencyProject(delegate)
 
 		then:
-		result.task(":genSources").outcome == SUCCESS
+		result == project
 	}
 }

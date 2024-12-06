@@ -59,9 +59,9 @@ public final class LorenzMappingService extends Service<LorenzMappingService.Opt
 		return TYPE.create(project, options -> options.getMappings().set(
 			MappingsService.createOptions(
 				project,
-				mappingConfiguration.getMappingsPath(mappingOption),
-				to.toString(),
+					mappingConfiguration.getMappingsPath(mappingOption),
 				from.toString(),
+				to.toString(),
 				false)
 		));
 	}
