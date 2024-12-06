@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -59,6 +61,11 @@ public abstract class GenVsCodeProjectTask extends AbstractLoomTask {
 	// Prevent Gradle from running vscode task asynchronously
 	@ServiceReference(SyncTaskBuildService.NAME)
 	abstract Property<SyncTaskBuildService> getSyncTask();
+
+	@Inject
+	public GenVsCodeProjectTask() {
+		notCompatibleWithConfigurationCache("Not yet supported");
+	}
 
 	@TaskAction
 	public void genRuns() throws IOException {

@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -46,6 +45,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -66,6 +66,7 @@ import net.fabricmc.loom.build.nesting.JarNester;
 import net.fabricmc.loom.build.nesting.NestableJarGenerationTask;
 import net.fabricmc.loom.configuration.accesswidener.AccessWidenerFile;
 import net.fabricmc.loom.configuration.mods.ArtifactMetadata;
+import net.fabricmc.loom.task.service.ClientEntriesService;
 import net.fabricmc.loom.task.service.MappingsService;
 import net.fabricmc.loom.task.service.MixinRefmapService;
 import net.fabricmc.loom.task.service.TinyRemapperService;
@@ -410,18 +411,7 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 	}
 
 	@Override
-	protected List<String> getClientOnlyEntries(SourceSet clientSourceSet) {
-		final ConfigurableFileCollection output = getProject().getObjects().fileCollection();
-		output.from(clientSourceSet.getOutput().getClassesDirs());
-		output.from(clientSourceSet.getOutput().getResourcesDir());
-
-		final List<String> rootPaths = new ArrayList<>();
-
-		rootPaths.addAll(getRootPaths(clientSourceSet.getOutput().getClassesDirs().getFiles()));
-		rootPaths.addAll(getRootPaths(Set.of(Objects.requireNonNull(clientSourceSet.getOutput().getResourcesDir()))));
-
-		return output.getAsFileTree().getFiles().stream()
-				.map(relativePath(rootPaths))
-				.toList();
+	protected Provider<? extends ClientEntriesService.Options> getClientOnlyEntriesOptionsProvider(SourceSet clientSourceSet) {
+		return ClientEntriesService.Classes.createOptions(getProject(), clientSourceSet);
 	}
 }
