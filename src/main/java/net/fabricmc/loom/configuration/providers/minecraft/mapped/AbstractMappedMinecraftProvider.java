@@ -37,6 +37,8 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 
 import org.gradle.api.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.api.mappings.layered.MappingsNamespace;
@@ -56,6 +58,8 @@ import net.fabricmc.tinyremapper.OutputConsumerPath;
 import net.fabricmc.tinyremapper.TinyRemapper;
 
 public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvider> implements MappedMinecraftProvider.ProviderImpl {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMappedMinecraftProvider.class);
+
 	protected final M minecraftProvider;
 	private final Project project;
 	protected final LoomGradleExtension extension;
@@ -68,7 +72,17 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 
 	public abstract MappingsNamespace getTargetNamespace();
 
+	/**
+	 * @return A list of jars that should be remapped
+	 */
 	public abstract List<RemappedJars> getRemappedJars();
+
+	/**
+	 * @return A list of output jars that this provider generates
+	 */
+	public List<? extends OutputJar> getOutputJars() {
+		return getRemappedJars();
+	}
 
 	// Returns a list of MinecraftJar.Type's that this provider exports to be used as a dependency
 	public List<MinecraftJar.Type> getDependencyTypes() {
@@ -85,7 +99,7 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 			throw new IllegalStateException("No remapped jars provided");
 		}
 
-		if (!areOutputsValid(remappedJars) || context.refreshOutputs() || !hasBackupJars(minecraftJars)) {
+		if (shouldRefreshOutputs(context)) {
 			try {
 				remapInputs(remappedJars, context.configContext());
 				createBackupJars(minecraftJars);
@@ -114,16 +128,6 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 	public static Path getBackupJarPath(MinecraftJar minecraftJar) {
 		final Path outputJarPath = minecraftJar.getPath();
 		return outputJarPath.resolveSibling(outputJarPath.getFileName() + ".backup");
-	}
-
-	protected boolean hasBackupJars(List<MinecraftJar> minecraftJars) {
-		for (MinecraftJar minecraftJar : minecraftJars) {
-			if (!Files.exists(getBackupJarPath(minecraftJar))) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	protected void createBackupJars(List<MinecraftJar> minecraftJars) throws IOException {
@@ -193,14 +197,34 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 		return "net.minecraft:%s:%s".formatted(getName(type), getVersion());
 	}
 
-	private boolean areOutputsValid(List<RemappedJars> remappedJars) {
-		for (RemappedJars remappedJar : remappedJars) {
-			if (!getMavenHelper(remappedJar.type()).exists(null)) {
-				return false;
+	protected boolean shouldRefreshOutputs(ProvideContext context) {
+		if (context.refreshOutputs()) {
+			LOGGER.info("Refreshing outputs for mapped jar, as refresh outputs was requested");
+			return true;
+		}
+
+		final List<? extends OutputJar> outputJars = getOutputJars();
+
+		if (outputJars.isEmpty()) {
+			throw new IllegalStateException("No output jars provided");
+		}
+
+		for (OutputJar outputJar : outputJars) {
+			if (!getMavenHelper(outputJar.type()).exists(null)) {
+				LOGGER.info("Refreshing outputs for mapped jar, as {} does not exist", outputJar.outputJar());
+				return true;
 			}
 		}
 
-		return true;
+		for (OutputJar outputJar : outputJars) {
+			if (!Files.exists(getBackupJarPath(outputJar.outputJar()))) {
+				LOGGER.info("Refreshing outputs for mapped jar, as backup jar does not exist for {}", outputJar.outputJar());
+				return true;
+			}
+		}
+
+		LOGGER.debug("All outputs are up to date");
+		return false;
 	}
 
 	private void remapInputs(List<RemappedJars> remappedJars, ConfigContext configContext) throws IOException {
@@ -274,7 +298,15 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 		return minecraftProvider;
 	}
 
-	public record RemappedJars(Path inputJar, MinecraftJar outputJar, MappingsNamespace sourceNamespace, Path... remapClasspath) {
+	public sealed interface OutputJar permits RemappedJars, SimpleOutputJar {
+		MinecraftJar outputJar();
+
+		default MinecraftJar.Type type() {
+			return outputJar().getType();
+		}
+	}
+
+	public record RemappedJars(Path inputJar, MinecraftJar outputJar, MappingsNamespace sourceNamespace, Path... remapClasspath) implements OutputJar {
 		public Path outputJarPath() {
 			return outputJar().getPath();
 		}
@@ -282,9 +314,8 @@ public abstract class AbstractMappedMinecraftProvider<M extends MinecraftProvide
 		public String name() {
 			return outputJar().getName();
 		}
+	}
 
-		public MinecraftJar.Type type() {
-			return outputJar().getType();
-		}
+	public record SimpleOutputJar(MinecraftJar outputJar) implements OutputJar {
 	}
 }
