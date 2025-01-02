@@ -24,8 +24,11 @@
 
 package net.fabricmc.loom.test.integration
 
+import java.util.concurrent.TimeUnit
+
 import spock.lang.IgnoreIf
 import spock.lang.Specification
+import spock.lang.Timeout
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
@@ -157,19 +160,30 @@ class RunConfigTest extends Specification implements GradleProjectTestTrait {
 		version << STANDARD_TEST_VERSIONS
 	}
 
+	@Timeout(value = 10, unit = TimeUnit.MINUTES)
 	@Unroll
-	@IgnoreIf({ System.getenv("CI") != null }) // This test is disabled on CI because it launches a real client and cannot run headless.
+	@IgnoreIf({ !os.linux }) // XVFB is installed on the CI for this test
 	def "prod client (gradle #version)"() {
 		setup:
 		def gradle = gradleProject(project: "minimalBase", version: version)
 		gradle.buildGradle << '''
+				configurations {
+					productionMods
+				}
+
                 dependencies {
                     minecraft "com.mojang:minecraft:1.21.4"
                     mappings "net.fabricmc:yarn:1.21.4+build.4:v2"
                     modImplementation "net.fabricmc:fabric-loader:0.16.9"
+                    modImplementation "net.fabricmc.fabric-api:fabric-api:0.114.0+1.21.4"
+
+                    productionMods "net.fabricmc.fabric-api:fabric-api:0.114.0+1.21.4"
                 }
 
-                tasks.register("prodClient", net.fabricmc.loom.task.prod.ClientProductionRunTask)
+                tasks.register("prodClient", net.fabricmc.loom.task.prod.ClientProductionRunTask) {
+                	mods.from(configurations.productionMods)
+                	jvmArgs.add("-Dfabric.client.gametest")
+                }
             '''
 		when:
 		def result = gradle.run(task: "prodClient")
