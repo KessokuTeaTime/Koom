@@ -86,6 +86,10 @@ public class Constants {
 		 * The configuration that contains the Minecraft client and loader runtime libraries, as used by the production run tasks.
 		 */
 		public static final String MINECRAFT_TEST_CLIENT_RUNTIME_LIBRARIES = "minecraftTestClientRuntimeLibraries";
+		/**
+		 * Mods to be used by {@link net.fabricmc.loom.task.prod.AbstractProductionRunTask} tasks by default.
+		 */
+		public static final String PRODUCTION_RUNTIME_MODS = "productionRuntimeMods";
 
 		private Configurations() {
 		}

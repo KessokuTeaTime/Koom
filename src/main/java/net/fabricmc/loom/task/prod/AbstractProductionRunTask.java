@@ -132,6 +132,8 @@ public abstract sealed class AbstractProductionRunTask extends AbstractLoomTask 
 		if (!GradleUtils.getBooleanProperty(getProject(), Constants.Properties.DONT_REMAP)) {
 			getMods().from(getProject().getTasks().named(RemapTaskConfiguration.REMAP_JAR_TASK_NAME));
 		}
+
+		getMods().from(getProject().getConfigurations().named(Constants.Configurations.PRODUCTION_RUNTIME_MODS));
 	}
 
 	@TaskAction

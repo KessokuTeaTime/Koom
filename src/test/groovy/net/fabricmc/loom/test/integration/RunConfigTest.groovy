@@ -174,21 +174,16 @@ class RunConfigTest extends Specification implements GradleProjectTestTrait {
 
 		def gradle = gradleProject(project: "minimalBase", version: version)
 		gradle.buildGradle << '''
-				configurations {
-					productionMods
-				}
-
                 dependencies {
                     minecraft "com.mojang:minecraft:1.21.4"
                     mappings "net.fabricmc:yarn:1.21.4+build.4:v2"
                     modImplementation "net.fabricmc:fabric-loader:0.16.9"
                     modImplementation "net.fabricmc.fabric-api:fabric-api:0.114.0+1.21.4"
 
-                    productionMods "net.fabricmc.fabric-api:fabric-api:0.114.0+1.21.4"
+                    productionRuntimeMods "net.fabricmc.fabric-api:fabric-api:0.114.0+1.21.4"
                 }
 
                 tasks.register("prodClient", net.fabricmc.loom.task.prod.ClientProductionRunTask) {
-                	mods.from(configurations.productionMods)
                 	jvmArgs.add("-Dfabric.client.gametest")
 
                 	tracy {
