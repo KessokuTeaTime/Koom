@@ -22,7 +22,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 	}
 }
 
-group = "dev.architectury"
+group = "band.kessoku"
 def baseVersion = '1.9'
 
 def ENV = System.getenv()
@@ -276,7 +276,7 @@ codenarc {
 gradlePlugin {
 	plugins {
 		fabricLoom {
-			id = 'dev.architectury.loom'
+			id = 'band.kessoku.koom'
 			implementationClass = 'net.fabricmc.loom.bootstrap.LoomGradlePluginBootstrap'
 		}
 	}
@@ -331,8 +331,8 @@ publishing {
 
 			// Manually crate the plugin marker for snapshot versions
 			snapshotPlugin(MavenPublication) {
-				groupId 'dev.architectury.loom'
-				artifactId 'dev.architectury.loom.gradle.plugin'
+				groupId 'band.kessoku.koom'
+				artifactId 'band.kessoku.koom.gradle.plugin'
 				version baseVersion + '-SNAPSHOT'
 
 				pom.withXml({
