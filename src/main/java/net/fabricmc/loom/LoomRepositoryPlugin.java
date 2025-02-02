@@ -26,6 +26,7 @@ package net.fabricmc.loom;
 
 import java.util.List;
 
+import band.kessoku.koom.KessokuExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
@@ -43,35 +44,60 @@ import net.fabricmc.loom.util.MirrorUtil;
 
 public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 	private static final List<String> FORGE_GROUPS = List.of(
-			"net.minecraftforge",
+			"net.neoforged",
 			"cpw.mods",
 			"de.oceanlabs",
 			"net.jodah",
 			"org.mcmodlauncher"
 	);
 
-	private static final List<String> NEOFORGE_GROUPS = List.of(
-			"net.neoforged"
-	);
-
 	@Override
 	public void apply(@NotNull PluginAware target) {
-		if (target instanceof Settings settings) {
-			declareRepositories(settings.getDependencyResolutionManagement().getRepositories(), LoomFiles.create(settings), settings);
+		switch (target) {
+			case Settings settings -> {
+				additionalRepositories(settings.getDependencyResolutionManagement().getRepositories());
+				declareRepositories(settings.getDependencyResolutionManagement().getRepositories(), LoomFiles.create(settings), settings);
 
-			// leave a marker so projects don't try to override these
-			settings.getGradle().getPluginManager().apply(LoomRepositoryPlugin.class);
-		} else if (target instanceof Project project) {
-			if (project.getGradle().getPlugins().hasPlugin(LoomRepositoryPlugin.class)) {
-				return;
+				// leave a marker so projects don't try to override these
+				settings.getGradle().getPluginManager().apply(LoomRepositoryPlugin.class);
 			}
+			case Project project -> {
+				if (project.getGradle().getPlugins().hasPlugin(LoomRepositoryPlugin.class)) {
+					return;
+				}
+				project.getExtensions().create("kessoku", KessokuExtension.class);
 
-			declareRepositories(project.getRepositories(), LoomFiles.create(project), project);
-		} else if (target instanceof Gradle) {
-			return;
-		} else {
-			throw new IllegalArgumentException("Expected target to be a Project or Settings, but was a " + target.getClass());
+				additionalRepositories(project.getRepositories());
+				declareRepositories(project.getRepositories(), LoomFiles.create(project), project);
+			}
+			case Gradle ignored -> {}
+			default ->
+					throw new IllegalArgumentException("Expected target to be a Project or Settings, but was a " + target.getClass());
 		}
+	}
+
+	public void additionalRepositories(RepositoryHandler repositories) {
+		repositories.maven(repo -> {
+			repo.setName("NeoForge");
+			repo.setUrl("https://maven.neoforged.net/releases/");
+		});
+
+		repositories.maven(repo -> {
+			repo.setName("AmarokIce's Maven");
+			repo.setUrl("http://maven.snowlyicewolf.club/");
+			repo.setAllowInsecureProtocol(true);
+			repo.mavenContent(context -> {
+				context.includeGroupByRegex("club\\.someoneice\\..*");
+			});
+		});
+
+		repositories.maven(repo -> {
+			repo.setName("Jitpack Maven");
+			repo.setUrl("https://jitpack.io");
+			repo.mavenContent(context -> {
+				context.includeGroupByRegex("com\\.github\\..*");
+			});
+		});
 	}
 
 	private void declareRepositories(RepositoryHandler repositories, LoomFiles files, ExtensionAware target) {
@@ -111,7 +137,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			repo.content(descriptor -> {
 				// Only include these groups to avoid slowing down/hanging the build,
 				// or downloading incorrect artifacts.
-				for (String group : NEOFORGE_GROUPS) {
+				for (String group : FORGE_GROUPS) {
 					descriptor.includeGroupAndSubgroups(group);
 				}
 			});
