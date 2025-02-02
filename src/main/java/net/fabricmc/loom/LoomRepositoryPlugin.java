@@ -50,6 +50,10 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			"org.mcmodlauncher"
 	);
 
+	private static final List<String> NEOFORGE_GROUPS = List.of(
+			"net.neoforged"
+	);
+
 	@Override
 	public void apply(@NotNull PluginAware target) {
 		if (target instanceof Settings settings) {
@@ -107,7 +111,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			repo.content(descriptor -> {
 				// Only include these groups to avoid slowing down/hanging the build,
 				// or downloading incorrect artifacts.
-				for (String group : FORGE_GROUPS) {
+				for (String group : NEOFORGE_GROUPS) {
 					descriptor.includeGroupAndSubgroups(group);
 				}
 			});
