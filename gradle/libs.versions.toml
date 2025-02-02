@@ -13,6 +13,8 @@ lorenz-tiny = "4.0.2"
 mercury = "0.1.4.17"
 loom-native = "0.2.0"
 
+arch = "3.4.160"
+
 # Plugins
 spotless = "6.25.0"
 test-retry = "1.5.6"
@@ -48,6 +50,8 @@ fabric-mapping-io = { module = "net.fabricmc:mapping-io", version.ref = "mapping
 fabric-lorenz-tiny = { module = "net.fabricmc:lorenz-tiny", version.ref = "lorenz-tiny" }
 fabric-mercury = { module = "dev.architectury:mercury", version.ref = "mercury" }
 fabric-loom-nativelib = { module = "net.fabricmc:fabric-loom-native", version.ref = "loom-native" }
+
+arch = { module = "architectury-plugin:architectury-plugin.gradle.plugin", version.ref = "arch" }
 
 # Misc
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

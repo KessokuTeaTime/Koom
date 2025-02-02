@@ -50,6 +50,7 @@ if (libs.versions.kotlin.get() != kotlinVersion) {
 
 repositories {
 	mavenCentral()
+	gradlePluginPortal()
 	maven { url "https://maven.fabricmc.net/" }
 	maven { url "https://maven.architectury.dev/" }
 	maven {
@@ -115,6 +116,8 @@ dependencies {
 	implementation libs.gson
 	implementation libs.guava
 	implementation libs.bundles.asm
+
+	implementation libs.arch
 
 	// game handling utils
 	implementation (libs.fabric.stitch) {
