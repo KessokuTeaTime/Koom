@@ -33,20 +33,17 @@ import javax.inject.Inject;
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import dev.architectury.plugin.ArchitectPluginExtension;
-
-import net.fabricmc.loom.api.LoomGradleExtensionAPI;
-
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.initialization.Settings;
 import org.gradle.api.plugins.BasePluginExtension;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
+import net.fabricmc.loom.api.LoomGradleExtensionAPI;
 import net.fabricmc.loom.task.RemapJarTask;
 
 public abstract class KessokuExtension {
