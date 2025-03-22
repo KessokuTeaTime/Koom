@@ -13,7 +13,8 @@ lorenz-tiny = "4.0.2"
 mercury = "0.1.4.17"
 loom-native = "0.2.0"
 
-arch = "3.4.160"
+arch = "3.4.161"
+shadow = "8.3.6"
 
 # Plugins
 spotless = "6.25.0"
@@ -52,6 +53,7 @@ fabric-mercury = { module = "dev.architectury:mercury", version.ref = "mercury" 
 fabric-loom-nativelib = { module = "net.fabricmc:fabric-loom-native", version.ref = "loom-native" }
 
 arch = { module = "architectury-plugin:architectury-plugin.gradle.plugin", version.ref = "arch" }
+shadow = { module = "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin", version.ref = "shadow" }
 
 # Misc
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

@@ -1,127 +1,198 @@
 package band.kessoku.koom;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
+import dev.architectury.plugin.ArchitectPluginExtension;
+
 import net.fabricmc.loom.api.LoomGradleExtensionAPI;
-import net.fabricmc.loom.util.ModPlatform;
-import net.fabricmc.loom.util.gradle.SourceSetHelper;
+
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.plugins.BasePluginExtension;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.language.jvm.tasks.ProcessResources;
 
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Map;
+import net.fabricmc.loom.task.RemapJarTask;
 
 public abstract class KessokuExtension {
 	@Inject
 	protected abstract Project getProject();
 
-	public static final String[] modulePlatforms = new String[] { "fabric", "neo", "common" };
+	Project project = getProject();
+	Project root = project.getRootProject();
+	ArchitectPluginExtension arch = getProject().getExtensions().getByType(ArchitectPluginExtension.class);
+	DependencyHandler dependencies = project.getDependencies();
 
-    public void platform() {
-		SourceSet fabric = SourceSetHelper.createSourceSet("fabric", getProject());
-		SourceSet neo = SourceSetHelper.createSourceSet("neo", getProject());
-		SourceSet common = SourceSetHelper.createSourceSet("common", getProject());
-    }
+	private Platform platform;
+	private final List<String> modules = new ArrayList<>();
+
+	public static final String[] PLATFORMS = new String[] { "fabric", "neo", "common" };
+
+	public void include(String module) {
+		modules.add(module);
+		module = ":" + module;
+		Settings settings = getProject().getExtensions().getByType(Settings.class);
+		settings.include(module);
+		for (String platform : PLATFORMS) {
+			settings.include(module + ":" + platform);
+		}
+	}
+
+	public void version(String mod, String minecraft) {
+		project.setVersion("%s+%s.%s".formatted(mod, platform.id(), minecraft));
+	}
+
+	public void name(String name) {
+		project.getExtensions().getByType(BasePluginExtension.class).getArchivesName().set(root.getName() + "-" + name);
+	}
+
+	public void common(Object loader) {
+		platform = Platform.COMMON;
+		arch.common("fabric", "neoforge");
+
+		Dependency dependency = dependencies.create(loader);
+		dependencies.add("modImplementation", dependency);
+	}
+
+	public void neoforge(Object neoforge) {
+		platform = Platform.NEO;
+		arch.platformSetupLoomIde();
+		arch.neoForge();
+
+		Dependency dependency = dependencies.create(neoforge);
+		dependencies.add("neoForge", dependency);
+
+		settingResource();
+	}
+
+	public void fabric(Object... fabric) {
+		platform = Platform.FABRIC;
+		arch.platformSetupLoomIde();
+		arch.fabric();
+
+		for (Object dep : fabric) {
+			Dependency dependency = dependencies.create(dep);
+			dependencies.add("modImplementation", dependency);
+		}
+
+		settingResource();
+	}
+
+	private void settingResource() {
+		Task processResources = project.getTasks().getByName("processResources");
+		processResources.getInputs().property("version", project.getVersion());
+		if (platform == Platform.FABRIC) {
+			((ProcessResources) processResources).filesMatching("fabric.mod.json", fileCopy -> {
+				fileCopy.expand(Map.of("version", project.getVersion()));
+			});
+		} else if (platform == Platform.NEO) {
+			((ProcessResources) processResources).filesMatching("META-INF/neoforge.mods.toml", fileCopy -> {
+				fileCopy.expand(Map.of("version", project.getVersion()));
+			});
+		}
+	}
+
+	public void settingsShade() {
+		Configuration shade = project.getConfigurations().getByName("shade");
+		shade.setCanBeResolved(true);
+		shade.setCanBeConsumed(true);
+
+		ShadowJar shadowJar = (ShadowJar) project.getTasks().getByName("shadowJar");
+		shadowJar.setConfigurations(Collections.singletonList(project.getConfigurations().getByName("shade")));
+		shadowJar.getArchiveClassifier().set("dev-shadow");
+
+		RemapJarTask remapJar = (RemapJarTask) project.getTasks().getByName("remapJar");
+		remapJar.getInputFile().set(shadowJar.getArchiveFile());
+	}
 
 	public void library(String lib) {
 		Project project = this.getProject();
 		DependencyHandler dependencies = project.getDependencies();
 
-		for (String plat : modulePlatforms) {
-			Dependency dependency = dependencies.project(Map.of(
-					"path", SourceSetHelper.createSourceSet(plat, project.project(lib)).getOutput(),
-					"configuration", "namedElements"
-			));
-			dependencies.add("implementation", dependency);
-		}
+		Dependency dependency = dependencies.project(Map.of(
+				"path", lib,
+				"configuration", "namedElements"
+		));
+		dependencies.add("implementation", dependency);
 	}
 
-	public void testModules(String[] names) {
-		Arrays.stream(names).forEach(this::testModule);
+	public void testModules(List<String> names, String plat) {
+		names.forEach(name -> testModule(name, plat));
 	}
 
-	public void modules(String[] names) {
-		Arrays.stream(names).forEach(this::module);
+	public void modules(List<String> names, String plat) {
+		names.forEach(name -> module(name, plat));
 	}
 
-	@Deprecated
-	public void moduleIncludes(String[] names) {
-		Arrays.stream(names).forEach(this::moduleInclude);
+	public void moduleIncludes(List<String> names, String plat) {
+		names.forEach(name -> moduleInclude(name, plat));
 	}
 
-	public void testModule(String name) {
-		Project project = this.getProject();
-		DependencyHandler dependencies = project.getDependencies();
-
-		for (String plat : modulePlatforms) {
-			Dependency dependency = dependencies.project(Map.of(
-					"path", SourceSetHelper.createSourceSet(plat, project.project(name)).getOutput(),
-					"configuration", "namedElements"
-			));
-			dependencies.add("testImplementation", dependency);
-		}
+	public void testModule(String name, String plat) {
+		Dependency dependency = dependencies.project(Map.of(
+				"path", ":" + name + ":" + plat,
+				"configuration", "namedElements"
+		));
+		dependencies.add("testImplementation", dependency);
 	}
 
-	public void module(String name) {
-		Project project = this.getProject();
-		DependencyHandler dependencies = project.getDependencies();
+	public void module(String name, String plat) {
+		Dependency dependency = dependencies.project(Map.of(
+				"path", ":" + name + ":" + plat,
+				"configuration", "namedElements"
+		));
+		dependencies.add("api", dependency);
 
-		for (String plat : modulePlatforms) {
-			Dependency dependency = dependencies.project(Map.of(
-					"path", SourceSetHelper.createSourceSet(plat, project.project(name)).getOutput(),
-					"configuration", "namedElements"
-			));
-			dependencies.add("api", dependency);
-
-			LoomGradleExtensionAPI loom = project.getExtensions().getByType(LoomGradleExtensionAPI.class);
-			loom.mods(mods -> mods.register("kessoku-" + name + "-" + plat, settings -> {
-				Project depProject = project.project(name);
-				SourceSetContainer sourceSets = depProject.getExtensions().getByType(SourceSetContainer.class);
-				settings.sourceSet(sourceSets.getByName(plat), depProject);
-			}));
-		}
+		LoomGradleExtensionAPI loom = project.getExtensions().getByType(LoomGradleExtensionAPI.class);
+		loom.mods(mods -> mods.register("kessoku-" + name + ":" + plat, settings -> {
+			Project depProject = project.project(":" + name + ":" + plat);
+			SourceSetContainer sourceSets = depProject.getExtensions().getByType(SourceSetContainer.class);
+			settings.sourceSet(sourceSets.getByName("main"), depProject);
+		}));
 	}
 
-	public void moduleInclude(String name) {
-		Project project = this.getProject();
-		DependencyHandler dependencies = project.getDependencies();
-
-		for (String plat : modulePlatforms) {
-			Dependency dependency = dependencies.project(Map.of(
-					"path", SourceSetHelper.createSourceSet(plat, project.project(name)).getOutput()
-			));
-			dependencies.add("include", dependency);
-		}
+	public void moduleInclude(String name, String plat) {
+		Dependency dependency = dependencies.project(Map.of(
+				"path", ":" + name + ":" + plat
+		));
+		dependencies.add("include", dependency);
 	}
 
-	public void common(String name) {
-		Project project = this.getProject();
-		DependencyHandler dependencies = project.getDependencies();
-
+	public void common(String name, Platform platform) {
 		ModuleDependency dependency = (ModuleDependency) dependencies.project(Map.of(
-				"path", SourceSetHelper.createSourceSet("common", project.project(name)).getOutput(),
+				"path", ":" + name + ":common",
 				"configuration", "namedElements"
 		));
 		dependency.setTransitive(false);
 		dependencies.add("compileOnly", dependency);
 		dependencies.add("runtimeOnly", dependency);
-		for (String plat : modulePlatforms) {
-			dependencies.add("development" + Character.toUpperCase(plat.charAt(0)) + plat.substring(1), dependency);
-		}
+		dependencies.add("development" + platform.convert().displayName(), dependency);
 	}
 
-	@Deprecated
-	public void shadowBundle(String name, ModPlatform platform) {
-		Project project = this.getProject();
-		DependencyHandler dependencies = project.getDependencies();
-
+	public void shadowBundle(String name, Platform platform) {
 		Dependency dependency = dependencies.project(Map.of(
-				"path", SourceSetHelper.createSourceSet("common", project.project(name)).getOutput(),
-				"configuration", "transformProduction" + platform.displayName()
+				"path", ":" + name + ":common",
+				"configuration", "transformProduction" + platform.convert().displayName()
 		));
 		dependencies.add("shade", dependency);
+	}
+
+	public Platform getPlatform() {
+		return platform;
+	}
+
+	public List<String> getModules() {
+		return modules;
 	}
 }

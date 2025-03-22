@@ -118,6 +118,7 @@ dependencies {
 	implementation libs.bundles.asm
 
 	implementation libs.arch
+	implementation libs.shadow
 
 	// game handling utils
 	implementation (libs.fabric.stitch) {
@@ -165,6 +166,7 @@ dependencies {
 
 	// Kapt integration
 	compileOnly libs.kotlin.gradle.plugin
+	implementation libs.kotlin.gradle.plugin
 
 	// Forge patches
 	implementation libs.forge.installer.tools
