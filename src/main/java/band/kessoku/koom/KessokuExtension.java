@@ -66,11 +66,13 @@ public abstract class KessokuExtension {
 	public void include(String module) {
 		modules.add(module);
 		module = ":" + module;
-		Settings settings = getProject().getExtensions().getByType(Settings.class);
-		settings.include(module);
-		for (String platform : PLATFORMS) {
-			settings.include(module + ":" + platform);
-		}
+		String finalModule = module;
+		getProject().getGradle().beforeSettings(settings -> {
+			settings.include(finalModule);
+			for (String platform : PLATFORMS) {
+				settings.include(finalModule + ":" + platform);
+			}
+		});
 	}
 
 	public void version(String mod, String minecraft) {
