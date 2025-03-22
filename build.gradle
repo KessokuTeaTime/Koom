@@ -5,7 +5,6 @@ plugins {
 	id 'idea'
 	id 'eclipse'
 	id 'groovy'
-	id 'checkstyle'
 	id 'codenarc'
 	alias(libs.plugins.kotlin)
 	alias(libs.plugins.spotless)
@@ -258,18 +257,6 @@ spotless {
 		targetExclude("**/build.gradle.kts")
 		targetExclude("src/test/resources/projects/*/**")
 		ktlint()
-	}
-}
-
-checkstyle {
-	configFile = file('checkstyle.xml')
-	toolVersion = libs.versions.checkstyle.get()
-}
-
-// Workaround https://github.com/gradle/gradle/issues/27035
-configurations.checkstyle {
-	resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
-		select("com.google.guava:guava:0")
 	}
 }
 

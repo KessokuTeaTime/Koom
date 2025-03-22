@@ -29,8 +29,8 @@ jobs:
           java-version: 21
           distribution: 'temurin'
       - uses: actions/checkout@v4
-      - uses: gradle/wrapper-validation-action@v2
+      - uses: gradle/wrapper-validation-action@v3
       - name: Upload to Maven
         run: ./gradlew publish --stacktrace
         env:
-          MAVEN_PASS: ${{ secrets.MAVEN_PASS }}
+          CLOUDSMITH_MAVEN_TOKEN: ${{ secrets.CLOUDSMITH_MAVEN_TOKEN }}
