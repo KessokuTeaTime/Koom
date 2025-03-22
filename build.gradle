@@ -358,13 +358,13 @@ publishing {
 	}
 
 	repositories {
-		if (ENV.MAVEN_PASS != null) {
-			maven {
-				url = "https://deploy.shedaniel.me/"
-				credentials {
-					username = "shedaniel"
-					password = ENV.MAVEN_PASS
-				}
+		maven {
+			name = "KessokuLib"
+			url = "https://maven.cloudsmith.io/kessokuteatime/kessokulib/"
+
+			credentials {
+				username = "tex-true"
+				password = System.getenv("CLOUDSMITH_MAVEN_TOKEN")
 			}
 		}
 	}
