@@ -1,6 +1,6 @@
 # Koom
 
-Modified based on [Architectury Loom](https://github.com/architectury/architectury-loom).
+A fork of Architectury Loom fork that is a fork of Fabric Loom that supports the multi-modloader modding toolchain.
 
 A [Gradle](https://gradle.org/) plugin to setup a deobfuscated development environment for Minecraft mods.
 
