@@ -220,7 +220,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
 		this.platform = project.provider(Suppliers.memoize(() -> {
-			if (project.getExtensions().getByType(KessokuExtension.class).getPlatform() == null) {
+			if (project.getExtensions().getByType(KessokuExtension.class).getPlatform() != null) {
 				return project.getExtensions().getByType(KessokuExtension.class).getPlatform().platform();
 			}
 
