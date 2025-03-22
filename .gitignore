@@ -19,7 +19,6 @@
 !/README.md
 !/settings.gradle
 !/Jenkinsfile
-!/checkstyle.xml
 !/codenarc.groovy
 !/bootstrap
 
