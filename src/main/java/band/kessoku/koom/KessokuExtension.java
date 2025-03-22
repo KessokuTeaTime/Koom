@@ -58,7 +58,7 @@ public abstract class KessokuExtension {
 	ArchitectPluginExtension arch = getProject().getExtensions().getByType(ArchitectPluginExtension.class);
 	DependencyHandler dependencies = project.getDependencies();
 
-	private Platform platform;
+	private PlatformIdentifier platform;
 	private final List<String> modules = new ArrayList<>();
 
 	public static final String[] PLATFORMS = new String[] { "fabric", "neo", "common" };
@@ -82,7 +82,6 @@ public abstract class KessokuExtension {
 	}
 
 	public void common(Object loader) {
-		platform = Platform.COMMON;
 		arch.common("fabric", "neoforge");
 
 		Dependency dependency = dependencies.create(loader);
@@ -90,7 +89,7 @@ public abstract class KessokuExtension {
 	}
 
 	public void neoforge(Object neoforge) {
-		platform = Platform.NEO;
+		platform = PlatformIdentifier.NEO;
 		arch.platformSetupLoomIde();
 		arch.neoForge();
 
@@ -101,7 +100,7 @@ public abstract class KessokuExtension {
 	}
 
 	public void fabric(Object... fabric) {
-		platform = Platform.FABRIC;
+		platform = PlatformIdentifier.FABRIC;
 		arch.platformSetupLoomIde();
 		arch.fabric();
 
@@ -116,11 +115,11 @@ public abstract class KessokuExtension {
 	private void settingResource() {
 		Task processResources = project.getTasks().getByName("processResources");
 		processResources.getInputs().property("version", project.getVersion());
-		if (platform == Platform.FABRIC) {
+		if (platform == PlatformIdentifier.FABRIC) {
 			((ProcessResources) processResources).filesMatching("fabric.mod.json", fileCopy -> {
 				fileCopy.expand(Map.of("version", project.getVersion()));
 			});
-		} else if (platform == Platform.NEO) {
+		} else if (platform == PlatformIdentifier.NEO) {
 			((ProcessResources) processResources).filesMatching("META-INF/neoforge.mods.toml", fileCopy -> {
 				fileCopy.expand(Map.of("version", project.getVersion()));
 			});
@@ -193,7 +192,7 @@ public abstract class KessokuExtension {
 		dependencies.add("include", dependency);
 	}
 
-	public void common(String name, Platform platform) {
+	public void common(String name, PlatformIdentifier platform) {
 		ModuleDependency dependency = (ModuleDependency) dependencies.project(Map.of(
 				"path", ":" + name + ":common",
 				"configuration", "namedElements"
@@ -201,18 +200,18 @@ public abstract class KessokuExtension {
 		dependency.setTransitive(false);
 		dependencies.add("compileOnly", dependency);
 		dependencies.add("runtimeOnly", dependency);
-		dependencies.add("development" + platform.convert().displayName(), dependency);
+		dependencies.add("development" + platform.platform().displayName(), dependency);
 	}
 
-	public void shadowBundle(String name, Platform platform) {
+	public void shadowBundle(String name, PlatformIdentifier platform) {
 		Dependency dependency = dependencies.project(Map.of(
 				"path", ":" + name + ":common",
-				"configuration", "transformProduction" + platform.convert().displayName()
+				"configuration", "transformProduction" + platform.platform().displayName()
 		));
 		dependencies.add("shade", dependency);
 	}
 
-	public Platform getPlatform() {
+	public PlatformIdentifier getPlatform() {
 		return platform;
 	}
 

@@ -26,24 +26,33 @@ package band.kessoku.koom;
 
 import net.fabricmc.loom.util.ModPlatform;
 
-public enum Platform {
-	FABRIC,
-	NEO,
-	COMMON;
+import java.util.Locale;
 
-	public String id() {
-		return switch (this) {
-			case FABRIC -> "fabric";
-			case NEO -> "neoforge";
-			case COMMON -> "common";
-		};
+public enum PlatformIdentifier {
+	FABRIC("Fabric", ModPlatform.FABRIC),
+	NEO("Neo", ModPlatform.NEOFORGE)
+	;
+
+	private final String displayName;
+	private final ModPlatform modPlatform;
+
+	PlatformIdentifier(String displayName, ModPlatform modPlatform) {
+		this.displayName = displayName;
+		this.modPlatform = modPlatform;
 	}
 
-	public ModPlatform convert() {
-		return switch (this) {
-			case FABRIC -> ModPlatform.FABRIC;
-			case NEO -> ModPlatform.NEOFORGE;
-			case COMMON -> null;
-		};
+	/**
+	 * Returns the lowercase ID of this mod platform.
+	 */
+	public String id() {
+		return name().toLowerCase(Locale.ROOT);
+	}
+
+	public String displayName() {
+		return displayName;
+	}
+
+	public ModPlatform platform() {
+		return modPlatform;
 	}
 }

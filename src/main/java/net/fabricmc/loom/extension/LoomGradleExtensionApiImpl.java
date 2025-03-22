@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import band.kessoku.koom.KessokuExtension;
-import band.kessoku.koom.Platform;
 import com.google.common.base.Suppliers;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -221,8 +220,8 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
 		this.platform = project.provider(Suppliers.memoize(() -> {
-			if (project.getExtensions().getByType(KessokuExtension.class).getPlatform() != Platform.COMMON) {
-				return project.getExtensions().getByType(KessokuExtension.class).getPlatform().convert();
+			if (project.getExtensions().getByType(KessokuExtension.class).getPlatform() == null) {
+				return project.getExtensions().getByType(KessokuExtension.class).getPlatform().platform();
 			}
 
 			Object platformProperty = GradleUtils.getProperty(project, PLATFORM_PROPERTY);
