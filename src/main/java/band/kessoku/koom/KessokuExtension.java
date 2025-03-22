@@ -87,6 +87,7 @@ public abstract class KessokuExtension {
 	}
 
 	public void common(Object loader) {
+		platform = PlatformIdentifier.COMMON;
 		arch.common("fabric", "neoforge");
 
 		Dependency dependency = dependencies.create(loader);
