@@ -347,7 +347,7 @@ publishing {
 	repositories {
 		maven {
 			name = "KessokuLib"
-			url = "https://maven.cloudsmith.io/kessokuteatime/kessokulib/"
+			url = "https://maven.cloudsmith.io/kessokuteatime/koom/"
 
 			credentials {
 				username = "tex-true"
