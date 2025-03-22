@@ -51,7 +51,6 @@ public abstract class KessokuExtension {
 	protected abstract Project getProject();
 
 	Project project = getProject();
-	Project root = project.getRootProject();
 	ArchitectPluginExtension arch = getProject().getExtensions().getByType(ArchitectPluginExtension.class);
 	DependencyHandler dependencies = project.getDependencies();
 
@@ -200,13 +199,13 @@ public abstract class KessokuExtension {
 		dependency.setTransitive(false);
 		dependencies.add("compileOnly", dependency);
 		dependencies.add("runtimeOnly", dependency);
-		dependencies.add("development" + platform.platform().displayName(), dependency);
+		dependencies.add("development" + platform.displayName(), dependency);
 	}
 
 	public void shadowBundle(String name, PlatformIdentifier platform) {
 		Dependency dependency = dependencies.project(Map.of(
 				"path", ":" + name + ":common",
-				"configuration", "transformProduction" + platform.platform().displayName()
+				"configuration", "transformProduction" + platform.displayName()
 		));
 		dependencies.add("shade", dependency);
 	}
