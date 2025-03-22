@@ -33,6 +33,11 @@ import javax.inject.Inject;
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import dev.architectury.plugin.ArchitectPluginExtension;
+
+import net.fabricmc.loom.extension.LoomGradleExtensionApiImpl;
+
+import net.fabricmc.loom.util.ModPlatform;
+
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -40,6 +45,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.plugins.BasePluginExtension;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
@@ -91,6 +97,8 @@ public abstract class KessokuExtension {
 		platform = PlatformIdentifier.NEO;
 		arch.platformSetupLoomIde();
 		arch.neoForge();
+
+		((LoomGradleExtensionApiImpl) project.getExtensions().getByType(LoomGradleExtensionAPI.class)).platform = project.provider(() -> ModPlatform.NEOFORGE);
 
 		Dependency dependency = dependencies.create(neoforge);
 		dependencies.add("neoForge", dependency);
