@@ -26,17 +26,20 @@ package band.kessoku.koom;
 
 import net.fabricmc.loom.util.ModPlatform;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Locale;
 
 public enum PlatformIdentifier {
 	FABRIC("Fabric", ModPlatform.FABRIC),
-	NEO("Neo", ModPlatform.NEOFORGE)
+	NEO("Neo", ModPlatform.NEOFORGE),
+	COMMON("Common", null)
 	;
 
 	private final String displayName;
-	private final ModPlatform modPlatform;
+	private final @Nullable ModPlatform modPlatform;
 
-	PlatformIdentifier(String displayName, ModPlatform modPlatform) {
+	PlatformIdentifier(String displayName, @Nullable ModPlatform modPlatform) {
 		this.displayName = displayName;
 		this.modPlatform = modPlatform;
 	}
@@ -52,6 +55,7 @@ public enum PlatformIdentifier {
 		return displayName;
 	}
 
+	@Nullable
 	public ModPlatform platform() {
 		return modPlatform;
 	}

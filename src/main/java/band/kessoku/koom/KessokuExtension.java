@@ -77,7 +77,8 @@ public abstract class KessokuExtension {
 	}
 
 	public void name(String name) {
-		project.getExtensions().getByType(BasePluginExtension.class).getArchivesName().set(root.getName() + "-" + name);
+		project.getExtensions().getByType(BasePluginExtension.class).getArchivesName().set(name);
+		project.getChildProjects().values().forEach(subproject -> subproject.getExtensions().getByType(BasePluginExtension.class).getArchivesName().set(name));
 	}
 
 	public void common(Object loader) {
