@@ -11,7 +11,7 @@ import net.fabricmc.loom.util.function.CollectionUtil;
 
 /**
  * The metadata file of a mod, such as {@link ArchitecturyCommonJson architectury.common.json} or
- * {@link QuiltModJson quilt.mod.json}.
+ * {@link QuiltModJson quilt.mod.json} or {@link KessokuJson kessoku.json}.
  *
  * @see net.fabricmc.loom.util.fmj.FabricModJson
  */

@@ -36,8 +36,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import band.kessoku.koom.KessokuExtension;
-import band.kessoku.koom.PlatformIdentifier;
 import com.google.common.base.Suppliers;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -221,6 +219,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
 		this.platform = project.provider(Suppliers.memoize(() -> {
+			Provider<String> platformGradleProvider = project.getProviders().gradleProperty(PLATFORM_PROPERTY);
 			Object platformProperty = GradleUtils.getProperty(project, PLATFORM_PROPERTY);
 
 			if (platformProperty != null) {
@@ -231,13 +230,25 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 				}
 
 				return platform;
+			} else if (platformGradleProvider != null) {
+				ModPlatform platform = ModPlatform.valueOf(Objects.toString(platformGradleProvider).toUpperCase(Locale.ROOT));
+
+				if (platform.isExperimental()) {
+					project.getLogger().lifecycle("{} support is experimental. Please report any issues!", platform.displayName());
+				}
+
+				return platform;
 			}
 
+			Provider<String> forgeGradleProvider = project.getProviders().gradleProperty(FORGE_PROPERTY);
 			Object forgeProperty = GradleUtils.getProperty(project, FORGE_PROPERTY);
 
 			if (forgeProperty != null) {
 				project.getLogger().warn("Project " + project.getPath() + " is using property " + FORGE_PROPERTY + " to enable forge mode. Please use '" + PLATFORM_PROPERTY + " = forge' instead!");
 				return Boolean.parseBoolean(Objects.toString(forgeProperty)) ? ModPlatform.FORGE : ModPlatform.FABRIC;
+			} else if (forgeGradleProvider != null) {
+				project.getLogger().warn("Project " + project.getPath() + " is using property " + FORGE_PROPERTY + " to enable forge mode. Please use '" + PLATFORM_PROPERTY + " = forge' instead!");
+				return Boolean.parseBoolean(Objects.toString(forgeGradleProvider)) ? ModPlatform.FORGE : ModPlatform.FABRIC;
 			}
 
 			return ModPlatform.FABRIC;
