@@ -50,23 +50,14 @@ if (libs.versions.kotlin.get() != kotlinVersion) {
 repositories {
 	mavenCentral()
 	gradlePluginPortal()
-	maven { url "https://maven.fabricmc.net/" }
-	maven { url "https://maven.architectury.dev/" }
+	maven { url = "https://maven.fabricmc.net/" }
+	maven { url = "https://maven.architectury.dev/" }
 	maven {
-		url "https://maven.minecraftforge.net/"
+		url = "https://maven.minecraftforge.net/"
 		content {
 			excludeGroupByRegex "org\\.eclipse\\.?.*"
 		}
 	}
-}
-
-configurations {
-	bootstrap {
-		transitive false
-	}
-	compileClasspath.extendsFrom bootstrap
-	runtimeClasspath.extendsFrom bootstrap
-	testRuntimeClasspath.extendsFrom bootstrap
 }
 
 configurations.configureEach {
@@ -107,8 +98,6 @@ sourceSets {
 
 dependencies {
 	implementation gradleApi()
-
-	bootstrap project(":bootstrap")
 
 	// libraries
 	implementation libs.commons.io
@@ -205,7 +194,6 @@ jar {
 		attributes 'Implementation-Version': project.version
 	}
 
-	from configurations.bootstrap.collect { it.isDirectory() ? it : zipTree(it) }
 	from sourceSets.commonDecompiler.output.classesDirs
 	from sourceSets.cfr.output.classesDirs
 	from sourceSets.fernflower.output.classesDirs
@@ -269,7 +257,7 @@ gradlePlugin {
 	plugins {
 		fabricLoom {
 			id = 'band.kessoku.koom'
-			implementationClass = 'net.fabricmc.loom.bootstrap.LoomGradlePluginBootstrap'
+			implementationClass = 'net.fabricmc.loom.LoomGradlePlugin'
 		}
 	}
 }
@@ -290,6 +278,11 @@ test {
 			maxRetries = 3
 		}
 	}
+
+	testLogging {
+		// Log everything to the console
+		setEvents(TestLogEvent.values().toList())
+	}
 }
 
 // Workaround https://github.com/gradle/gradle/issues/25898
@@ -303,7 +296,7 @@ tasks.withType(Test).configureEach {
 }
 
 
-import org.gradle.api.internal.artifacts.configurations.ConfigurationRoles
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.util.GradleVersion
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -314,9 +307,9 @@ publishing {
 		if (!isSnapshot && !ENV.EXPERIMENTAL) {
 			// Also publish a snapshot so people can use the latest version if they wish
 			snapshot(MavenPublication) { publication ->
-				groupId project.group
-				artifactId project.base.archivesName.get()
-				version baseVersion + '-SNAPSHOT'
+				groupId = project.group
+				artifactId = project.base.archivesName.get()
+				version = baseVersion + '-SNAPSHOT'
 
 				from components.java
 			}
@@ -354,21 +347,6 @@ publishing {
 				password = System.getenv("CLOUDSMITH_MAVEN_TOKEN")
 			}
 		}
-	}
-}
-
-// Need to tweak this file to pretend we are compatible with j8 so the bootstrap will run.
-tasks.withType(GenerateModuleMetadata).configureEach {
-	doLast {
-		def file = outputFile.get().asFile
-
-		def metadata = new groovy.json.JsonSlurper().parseText(file.text)
-
-		metadata.variants.each {
-			it.attributes["org.gradle.jvm.version"] = 8
-		}
-
-		file.text = groovy.json.JsonOutput.toJson(metadata)
 	}
 }
 
