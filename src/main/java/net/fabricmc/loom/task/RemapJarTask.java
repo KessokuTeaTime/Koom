@@ -159,7 +159,7 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 		getInjectAccessWidener().convention(false);
 
 		TaskProvider<NestableJarGenerationTask> processIncludeJars = getProject().getTasks().named(Constants.Task.PROCESS_INCLUDE_JARS, NestableJarGenerationTask.class);
-		getNestedJars().from(getProject().fileTree(processIncludeJars.get().getOutputDirectory()));
+		getNestedJars().from(processIncludeJars.map(task -> getProject().fileTree(task.getOutputDirectory())));
 		getNestedJars().builtBy(processIncludeJars);
 
 		getUseMixinAP().set(LoomGradleExtension.get(getProject()).getMixin().getUseLegacyMixinAp());
@@ -317,6 +317,9 @@ public abstract class RemapJarTask extends AbstractRemapJarTask {
 		private void remap() throws IOException {
 			Objects.requireNonNull(tinyRemapperService, "tinyRemapperService");
 			Objects.requireNonNull(tinyRemapper, "tinyRemapper");
+
+			// Delete the old file to prevent deleted contents from sticking around in the jar.
+			Files.deleteIfExists(outputFile);
 
 			try (OutputConsumerPath outputConsumer = new OutputConsumerPath.Builder(outputFile).build()) {
 				outputConsumer.addNonClassFiles(inputFile);

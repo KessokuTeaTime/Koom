@@ -1,7 +1,7 @@
 /*
  * This file is part of fabric-loom, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2021 FabricMC
+ * Copyright (c) 2025 FabricMC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,36 @@
  * SOFTWARE.
  */
 
-package net.fabricmc.loom.util.srg;
+package net.fabricmc.loom.util;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.cadixdev.lorenz.io.srg.SrgWriter;
-import org.gradle.api.logging.Logger;
+import net.fabricmc.tinyremapper.api.TrLogger;
 
-import net.fabricmc.lorenztiny.TinyMappingsReader;
-import net.fabricmc.mappingio.tree.MappingTree;
+public final class TinyRemapperLoggerAdapter implements TrLogger {
+	public static final TinyRemapperLoggerAdapter INSTANCE = new TinyRemapperLoggerAdapter();
 
-public class SrgNamedWriter {
-	public static void writeTo(Logger logger, Path srgFile, MappingTree mappings, String from, String to) throws IOException {
-		Files.deleteIfExists(srgFile);
+	private static final Logger LOGGER = LoggerFactory.getLogger("TinyRemapper");
 
-		try (SrgWriter writer = new SrgWriter(Files.newBufferedWriter(srgFile))) {
-			try (TinyMappingsReader reader = new TinyMappingsReader(mappings, from, to)) {
-				writer.write(reader.read());
-			}
+	private TinyRemapperLoggerAdapter() {
+	}
+
+	@Override
+	public void log(Level level, String message) {
+		switch (level) {
+		case ERROR:
+			LOGGER.error(message);
+			break;
+		case WARN:
+			LOGGER.warn(message);
+			break;
+		case INFO:
+			LOGGER.info(message);
+			break;
+		case DEBUG:
+			LOGGER.debug(message);
+			break;
 		}
 	}
 }
