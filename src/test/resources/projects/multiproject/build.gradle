@@ -1,11 +1,11 @@
 plugins {
 	id "java"
 	id "java-library"
-	id 'dev.architectury.loom' apply false
+	id 'band.kessoku.koom' apply false
 }
 
 allprojects {
-	apply plugin: "dev.architectury.loom"
+	apply plugin: "band.kessoku.koom"
 
 	version = "1.0.0"
 
