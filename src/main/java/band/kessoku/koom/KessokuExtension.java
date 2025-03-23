@@ -32,7 +32,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
-import dev.architectury.plugin.ArchitectPluginExtension;
+//import dev.architectury.plugin.ArchitectPluginExtension;
 
 import net.fabricmc.loom.extension.LoomGradleExtensionApiImpl;
 
@@ -57,7 +57,7 @@ public abstract class KessokuExtension {
 	protected abstract Project getProject();
 
 	Project project = getProject();
-	ArchitectPluginExtension arch = getProject().getExtensions().getByType(ArchitectPluginExtension.class);
+	//ArchitectPluginExtension arch = getProject().getExtensions().getByType(ArchitectPluginExtension.class);
 	DependencyHandler dependencies = project.getDependencies();
 
 	private PlatformIdentifier platform;
@@ -88,7 +88,7 @@ public abstract class KessokuExtension {
 
 	public void common(Object loader) {
 		platform = PlatformIdentifier.COMMON;
-		arch.common("fabric", "neoforge");
+		//arch.common("fabric", "neoforge");
 
 		Dependency dependency = dependencies.create(loader);
 		dependencies.add("modImplementation", dependency);
@@ -96,8 +96,8 @@ public abstract class KessokuExtension {
 
 	public void neoforge(Object neoforge) {
 		platform = PlatformIdentifier.NEO;
-		arch.platformSetupLoomIde();
-		arch.neoForge();
+		//arch.platformSetupLoomIde();
+		//arch.neoForge();
 
 		((LoomGradleExtensionApiImpl) project.getExtensions().getByType(LoomGradleExtensionAPI.class)).platform = project.provider(() -> ModPlatform.NEOFORGE);
 
@@ -109,8 +109,8 @@ public abstract class KessokuExtension {
 
 	public void fabric(Object... fabric) {
 		platform = PlatformIdentifier.FABRIC;
-		arch.platformSetupLoomIde();
-		arch.fabric();
+		//arch.platformSetupLoomIde();
+		//arch.fabric();
 
 		for (Object dep : fabric) {
 			Dependency dependency = dependencies.create(dep);
