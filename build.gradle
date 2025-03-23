@@ -316,9 +316,9 @@ publishing {
 
 			// Manually crate the plugin marker for snapshot versions
 			snapshotPlugin(MavenPublication) {
-				groupId 'band.kessoku.koom'
-				artifactId 'band.kessoku.koom.gradle.plugin'
-				version baseVersion + '-SNAPSHOT'
+				groupId = 'band.kessoku.koom'
+				artifactId = 'band.kessoku.koom.gradle.plugin'
+				version = baseVersion + '-SNAPSHOT'
 
 				pom.withXml({
 					// Based off org.gradle.plugin.devel.plugins.MavenPluginPublishPlugin
