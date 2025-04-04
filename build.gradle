@@ -22,8 +22,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 	}
 }
 
-group = "dev.architectury"
-def baseVersion = '1.10'
+group = "band.kessoku"
+def baseVersion = '1.11'
 
 def ENV = System.getenv()
 def runNumber = ENV.GITHUB_RUN_NUMBER ?: "9999"
@@ -35,8 +35,6 @@ if (!isSnapshot) {
 } else {
 	version = baseVersion + "-PR." + ENV.PR_NUM + "." + runNumber
 }
-
-logger.lifecycle(":building plugin v${version}")
 
 // We must build against the version of Kotlin Gradle ships with.
 def props = new Properties()
@@ -63,6 +61,7 @@ repositories {
 configurations.configureEach {
 	resolutionStrategy {
 		// I am sorry, for now
+		// kessoku: todo Why not add a TODO here??
 		// failOnNonReproducibleResolution()
 	}
 
@@ -107,7 +106,6 @@ dependencies {
 
 	// game handling utils
 	implementation (libs.fabric.stitch) {
-		exclude module: 'mercury'
 		exclude module: 'enigma'
 	}
 
@@ -118,7 +116,6 @@ dependencies {
 	implementation (libs.fabric.lorenz.tiny) {
 		transitive = false
 	}
-	implementation "dev.architectury:refmap-remapper:1.0.5"
 
 	implementation libs.fabric.loom.nativelib
 
@@ -264,7 +261,7 @@ codenarc {
 gradlePlugin {
 	plugins {
 		fabricLoom {
-			id = 'dev.architectury.loom'
+			id = 'band.kessoku.koom'
 			implementationClass = 'net.fabricmc.loom.LoomGradlePlugin'
 		}
 	}
@@ -324,8 +321,8 @@ publishing {
 
 			// Manually crate the plugin marker for snapshot versions
 			snapshotPlugin(MavenPublication) {
-				groupId = 'dev.architectury.loom'
-				artifactId = 'dev.architectury.loom.gradle.plugin'
+				groupId = 'band.kessoku.koom'
+				artifactId = 'band.kessoku.koom.gradle.plugin'
 				version = baseVersion + '-SNAPSHOT'
 
 				pom.withXml({
@@ -346,13 +343,13 @@ publishing {
 	}
 
 	repositories {
-		if (ENV.MAVEN_PASS != null) {
-			maven {
-				url = "https://deploy.shedaniel.me/"
-				credentials {
-					username = "shedaniel"
-					password = ENV.MAVEN_PASS
-				}
+		maven {
+			name = "KessokuLib"
+			url = "https://maven.cloudsmith.io/kessokuteatime/koom/"
+
+			credentials {
+				username = "tex-true"
+				password = System.getenv("CLOUDSMITH_MAVEN_TOKEN")
 			}
 		}
 	}
@@ -376,6 +373,7 @@ tasks.register('writeActionsTestMatrix') {
 
 				if (it.name.endsWith("FabricAPITest.groovy")) {
 					// Arch: Disabled as it hangs
+					// Kessoku: TODO figure out
 					return
 				}
 
@@ -424,6 +422,7 @@ tasks.register('downloadGradleSources') {
 	}
 }
 
+// Arch: Disable module files, we can't have those, they point to the wrong files
 tasks.withType(GenerateModuleMetadata) {
 	enabled = false
 }
