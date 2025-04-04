@@ -1,7 +1,7 @@
 /*
  * This file is part of fabric-loom, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2024 FabricMC
+ * Copyright (c) 2025 FabricMC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,15 @@
  * SOFTWARE.
  */
 
-package net.fabricmc.loom.test.unit.service
+package net.fabricmc.loom.configuration.mods.dependency;
 
-import org.gradle.api.Project
-import spock.lang.Specification
+import org.gradle.api.provider.Property;
 
-import net.fabricmc.loom.test.util.GradleTestUtil
-import net.fabricmc.loom.util.service.ScopedServiceFactory
+import net.fabricmc.loom.util.CacheKey;
 
-abstract class ServiceTestBase extends Specification {
-	ScopedServiceFactory factory
-	Project project = GradleTestUtil.mockProject()
-
-	def setup() {
-		factory = new ScopedServiceFactory()
-	}
-
-	def cleanup() {
-		factory.close()
-		factory = null
-	}
+/**
+ * Inputs used to process a mod dependency. The output jar is cached based on these properties.
+ */
+public abstract class ModDependencyOptions extends CacheKey {
+	public abstract Property<String> getMappings();
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of fabric-loom, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2024 FabricMC
+ * Copyright (c) 2025 FabricMC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,28 @@
  * SOFTWARE.
  */
 
-package net.fabricmc.loom.test.unit.service
+package net.fabricmc.loom.test.unit
 
-import org.gradle.api.Project
 import spock.lang.Specification
 
+import net.fabricmc.loom.configuration.mods.dependency.ModDependencyOptions
 import net.fabricmc.loom.test.util.GradleTestUtil
-import net.fabricmc.loom.util.service.ScopedServiceFactory
+import net.fabricmc.loom.util.CacheKey
 
-abstract class ServiceTestBase extends Specification {
-	ScopedServiceFactory factory
-	Project project = GradleTestUtil.mockProject()
+class ModDependencyOptionsTest extends Specification {
+	def "test ModDependencyOptions cache key and json value"() {
+		given:
+		def project = GradleTestUtil.mockProject()
+		def modDependencyOptions = CacheKey.create(project, ModDependencyOptions) {
+			it.getMappings().set("testMappings")
+		}
 
-	def setup() {
-		factory = new ScopedServiceFactory()
-	}
+		when:
+		def json = modDependencyOptions.getJson()
+		def cacheKey = modDependencyOptions.getCacheKey()
 
-	def cleanup() {
-		factory.close()
-		factory = null
+		then:
+		json == '{"__mappings__":"testMappings"}'
+		cacheKey == "c97692d3"
 	}
 }
