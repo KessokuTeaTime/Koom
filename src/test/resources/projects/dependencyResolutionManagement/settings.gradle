@@ -1,11 +1,11 @@
 pluginManagement {
 	plugins {
-		id 'dev.architectury.loom'
+		id 'band.kessoku.koom'
 	}
 }
 
 plugins {
-	id 'dev.architectury.loom'
+	id 'band.kessoku.koom'
 }
 
 dependencyResolutionManagement {

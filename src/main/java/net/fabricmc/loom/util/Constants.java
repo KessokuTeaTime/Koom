@@ -28,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.objectweb.asm.Opcodes;
 
 public class Constants {
-	public static final String PLUGIN_ID = "dev.architectury.loom";
+	public static final String PLUGIN_ID = "band.kessoku.koom";
 	public static final boolean PLUGIN_BETA = true;
 	public static final boolean PLUGIN_DEPRECATED = false;
 	public static final String LIBRARIES_BASE = "https://libraries.minecraft.net/";
@@ -90,7 +90,7 @@ public class Constants {
 		public static final String FORGE_DEPENDENCIES = "forgeDependencies";
 		/**
 		 * "Extra" runtime dependencies on Forge. Contains the Minecraft resources
-		 * and {@linkplain Dependencies#FORGE_RUNTIME the Architectury Loom runtime}.
+		 * and the Architectury Loom runtime.
 		 */
 		public static final String FORGE_EXTRA = "forgeExtra";
 		/**

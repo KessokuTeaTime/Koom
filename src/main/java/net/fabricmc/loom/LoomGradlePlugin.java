@@ -24,19 +24,9 @@
 
 package net.fabricmc.loom;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.plugins.PluginAware;
-
 import net.fabricmc.loom.api.LoomGradleExtensionAPI;
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension;
 import net.fabricmc.loom.configuration.CompileConfiguration;
@@ -52,6 +42,11 @@ import net.fabricmc.loom.task.LoomTasks;
 import net.fabricmc.loom.task.RemapTaskConfiguration;
 import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.LibraryLocationLogger;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.plugins.PluginAware;
+
+import java.util.*;
 
 public class LoomGradlePlugin implements Plugin<PluginAware> {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -81,19 +76,21 @@ public class LoomGradlePlugin implements Plugin<PluginAware> {
 	}
 
 	private void apply(Project project) {
+		// Arch: log arch information
 		Set<String> loggedVersions = new HashSet<>(Arrays.asList(System.getProperty("loom.printed.logged", "").split(",")));
 
 		if (!loggedVersions.contains(LOOM_VERSION)) {
 			loggedVersions.add(LOOM_VERSION);
 			System.setProperty("loom.printed.logged", String.join(",", loggedVersions));
-			project.getLogger().lifecycle("Architectury Loom: " + LOOM_VERSION);
+			project.getLogger().lifecycle("Koom: " + LOOM_VERSION);
 
 			if (Constants.PLUGIN_BETA) {
-				project.getLogger().lifecycle("This version of Architectury Loom is in beta! Please report any issues you encounter: https://github.com/architectury/architectury-loom/issues");
+				project.getLogger().warn("This version of Koom is in beta! Please report any issues you encounter: https://github.com/KessokuTeaTime/Koom/issues");
 			} else if (Constants.PLUGIN_DEPRECATED) {
-				project.getLogger().lifecycle("You are using an outdated version of Architectury Loom! This version will not receive any support, please consider updating!");
+				project.getLogger().lifecycle("You are using an outdated version of KLoom! This version will not receive any support, please consider updating!");
 			}
 		}
+		// Arch end
 
 		LibraryLocationLogger.logLibraryVersions();
 

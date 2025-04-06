@@ -24,8 +24,8 @@
 
 package net.fabricmc.loom;
 
-import java.util.List;
-
+import net.fabricmc.loom.extension.LoomFiles;
+import net.fabricmc.loom.util.MirrorUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
@@ -38,10 +38,10 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 import org.jetbrains.annotations.NotNull;
 
-import net.fabricmc.loom.extension.LoomFiles;
-import net.fabricmc.loom.util.MirrorUtil;
+import java.util.List;
 
 public class LoomRepositoryPlugin implements Plugin<PluginAware> {
+    // Arch: groups used by forge
 	private static final List<String> FORGE_GROUPS = List.of(
 			"net.minecraftforge",
 			"cpw.mods",
@@ -73,6 +73,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 	private void declareRepositories(RepositoryHandler repositories, LoomFiles files, ExtensionAware target) {
 		declareLocalRepositories(repositories, files);
 
+		// Arch: Add architectury repo
 		repositories.maven(repo -> {
 			repo.setName("Architectury");
 			repo.setUrl("https://maven.architectury.dev/");
@@ -100,6 +101,8 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			// See: https://github.com/FabricMC/fabric-loom/issues/1032
 			repo.artifactUrls(ArtifactRepositoryContainer.MAVEN_CENTRAL_URL);
 		});
+
+		// Arch: Add forge repo
 		repositories.maven(repo -> {
 			repo.setName("Forge");
 			repo.setUrl("https://maven.minecraftforge.net/");
@@ -107,6 +110,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			repo.content(descriptor -> {
 				// Only include these groups to avoid slowing down/hanging the build,
 				// or downloading incorrect artifacts.
+                // See: https://github.com/architectury/architectury-loom/issues/221
 				for (String group : FORGE_GROUPS) {
 					descriptor.includeGroupAndSubgroups(group);
 				}
@@ -145,6 +149,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			repo.setUrl(files.getLocalMinecraftRepo());
 		});
 
+		// Arch: Add local transformed forge deps
 		repositories.maven(repo -> {
 			repo.setName("LoomTransformedForgeDependencies");
 			repo.setUrl(files.getForgeDependencyRepo());
