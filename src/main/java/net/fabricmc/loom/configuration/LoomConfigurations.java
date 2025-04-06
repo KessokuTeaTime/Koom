@@ -26,6 +26,7 @@ package net.fabricmc.loom.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.inject.Inject;
 
 import band.kessoku.koom.KoomGradleExtension;
@@ -218,7 +219,9 @@ public abstract class LoomConfigurations implements Runnable {
 				getDependencies().add(Constants.Configurations.FORGE_EXTRA, LoomVersions.MCP_ANNOTATIONS.mavenNotation());
 			}
 		}
+
 		KoomGradleExtension koomGradleExtension = getProject().getExtensions().findByType(KoomGradleExtension.class);
+
 		if (koomGradleExtension != null) {
 			koomGradleExtension.registerDependency();
 		}

@@ -16,7 +16,7 @@ public abstract class KoomGradleExtension {
 
 	private ModPlatform platform = null;
 	private final DependencyHandler dependencyHandler = getProject().getDependencies();
-	private Runnable addDependency = () -> {};
+	private Runnable addDependency = () -> { };
 
 	public void common() {
 		platform = ModPlatform.FABRIC;
