@@ -34,7 +34,10 @@ dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:$mcVersion"
 	mappings @MAPPINGS@
-	forge "@PACKAGE@:$mcVersion-$forgeVersion"
+}
+
+koom {
+	forge("$mcVersion-$forgeVersion")
 }
 
 tasks.withType(JavaCompile).configureEach {

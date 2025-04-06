@@ -19,5 +19,8 @@ dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:$project.minecraft_version"
 	mappings loom.officialMojangMappings()
-	forge "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
+}
+
+koom {
+	forge("$project.minecraft_version-$project.forge_version")
 }

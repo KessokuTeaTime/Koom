@@ -38,8 +38,10 @@ dependencies {
 			it.mappings(PATCHES)
 		}
 	}
+}
 
-	neoForge "net.neoforged:neoforge:$neoforgeVersion"
+koom {
+	neoforge("$neoforgeVersion")
 }
 
 tasks.withType(JavaCompile).configureEach {

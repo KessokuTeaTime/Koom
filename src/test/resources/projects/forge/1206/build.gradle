@@ -29,6 +29,10 @@ loom {
 	}
 }
 
+koom {
+	forge(forgeVersion)
+}
+
 repositories {
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because
@@ -48,8 +52,6 @@ dependencies {
 			it.mappings(PATCHES)
 		}
 	}
-
-	forge "net.minecraftforge:forge:$forgeVersion"
 }
 
 tasks.withType(JavaCompile).configureEach {
