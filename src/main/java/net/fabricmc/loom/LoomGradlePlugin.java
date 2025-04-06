@@ -24,9 +24,19 @@
 
 package net.fabricmc.loom;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.plugins.PluginAware;
+
 import net.fabricmc.loom.api.LoomGradleExtensionAPI;
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension;
 import net.fabricmc.loom.configuration.CompileConfiguration;
@@ -42,11 +52,6 @@ import net.fabricmc.loom.task.LoomTasks;
 import net.fabricmc.loom.task.RemapTaskConfiguration;
 import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.LibraryLocationLogger;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.plugins.PluginAware;
-
-import java.util.*;
 
 public class LoomGradlePlugin implements Plugin<PluginAware> {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -90,6 +95,7 @@ public class LoomGradlePlugin implements Plugin<PluginAware> {
 				project.getLogger().lifecycle("You are using an outdated version of KLoom! This version will not receive any support, please consider updating!");
 			}
 		}
+
 		// Arch end
 
 		LibraryLocationLogger.logLibraryVersions();

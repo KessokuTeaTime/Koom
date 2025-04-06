@@ -24,8 +24,8 @@
 
 package net.fabricmc.loom;
 
-import net.fabricmc.loom.extension.LoomFiles;
-import net.fabricmc.loom.util.MirrorUtil;
+import java.util.List;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
@@ -38,10 +38,11 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import net.fabricmc.loom.extension.LoomFiles;
+import net.fabricmc.loom.util.MirrorUtil;
 
 public class LoomRepositoryPlugin implements Plugin<PluginAware> {
-    // Arch: groups used by forge
+	// Arch: groups used by forge
 	private static final List<String> FORGE_GROUPS = List.of(
 			"net.minecraftforge",
 			"cpw.mods",
@@ -110,7 +111,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			repo.content(descriptor -> {
 				// Only include these groups to avoid slowing down/hanging the build,
 				// or downloading incorrect artifacts.
-                // See: https://github.com/architectury/architectury-loom/issues/221
+				// See: https://github.com/architectury/architectury-loom/issues/221
 				for (String group : FORGE_GROUPS) {
 					descriptor.includeGroupAndSubgroups(group);
 				}

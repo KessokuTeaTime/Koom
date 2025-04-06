@@ -213,8 +213,7 @@ spotless {
 	java {
 		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
 		targetExclude("**/loom/util/DownloadUtil.java", "**/loom/util/FileSystemUtil.java")
-		targetExclude("**/dev/architectury/**")
-		targetExclude("**/band/kessoku/**")
+		targetExclude("**/dev/architectury/**", "**/band/kessoku/**")
 	}
 
 	groovy {

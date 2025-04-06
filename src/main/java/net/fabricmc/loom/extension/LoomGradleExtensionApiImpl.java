@@ -24,10 +24,43 @@
 
 package net.fabricmc.loom.extension;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import band.kessoku.koom.KoomGradleExtension;
 import com.google.common.base.Suppliers;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.NamedDomainObjectList;
+import org.gradle.api.Project;
+import org.gradle.api.UncheckedIOException;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.SetProperty;
+import org.gradle.api.publish.maven.MavenPublication;
+import org.gradle.api.tasks.SourceSet;
+
 import net.fabricmc.loom.LoomGradleExtension;
-import net.fabricmc.loom.api.*;
+import net.fabricmc.loom.api.ForgeExtensionAPI;
+import net.fabricmc.loom.api.InterfaceInjectionExtensionAPI;
+import net.fabricmc.loom.api.LoomGradleExtensionAPI;
+import net.fabricmc.loom.api.MixinExtensionAPI;
+import net.fabricmc.loom.api.ModSettings;
+import net.fabricmc.loom.api.NeoForgeExtensionAPI;
+import net.fabricmc.loom.api.RemapConfigurationSettings;
 import net.fabricmc.loom.api.decompilers.DecompilerOptions;
 import net.fabricmc.loom.api.mappings.intermediate.IntermediateMappingsProvider;
 import net.fabricmc.loom.api.mappings.layered.MappingsNamespace;
@@ -55,23 +88,6 @@ import net.fabricmc.loom.util.fmj.FabricModJson;
 import net.fabricmc.loom.util.fmj.FabricModJsonFactory;
 import net.fabricmc.loom.util.gradle.GradleUtils;
 import net.fabricmc.loom.util.gradle.SourceSetHelper;
-import org.gradle.api.*;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.SetProperty;
-import org.gradle.api.publish.maven.MavenPublication;
-import org.gradle.api.tasks.SourceSet;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * This class implements the public extension api.
@@ -203,6 +219,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 		});
 		this.platform = project.provider(Suppliers.memoize(() -> {
 			KoomGradleExtension koomGradleExtension = project.getExtensions().findByType(KoomGradleExtension.class);
+
 			if (koomGradleExtension != null && koomGradleExtension.getPlatform() != null) {
 				ModPlatform platform = koomGradleExtension.getPlatform();
 
@@ -212,11 +229,11 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			}
 
 			if (GradleUtils.getProperty(project, PLATFORM_PROPERTY) != null) {
-                throw new UnsupportedOperationException("Project %s is using property %s to enable forge mode. Please use the koom extension instead!".formatted(project.getPath(), PLATFORM_PROPERTY));
+				throw new UnsupportedOperationException("Project %s is using property %s to enable forge mode. Please use the koom extension instead!".formatted(project.getPath(), PLATFORM_PROPERTY));
 			}
 
 			if (GradleUtils.getProperty(project, FORGE_PROPERTY) != null) {
-                throw new UnsupportedOperationException("Project %s is using property %s to enable forge mode. Please use the koom extension instead!".formatted(project.getPath(), FORGE_PROPERTY));
+				throw new UnsupportedOperationException("Project %s is using property %s to enable forge mode. Please use the koom extension instead!".formatted(project.getPath(), FORGE_PROPERTY));
 			}
 
 			return ModPlatform.FABRIC;
@@ -524,7 +541,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 		if (isNeoForge()) {
 			// This is unsupported because supporting the full 2x2 combination of
 			//  [no extra NS] [SRG]
-			//  [mojang]      [SRG+mojang]
+			//  [mojang]		  [SRG+mojang]
 			// is a bit verbose to support.
 			throw new UnsupportedOperationException("SRG is not supported on NeoForge.");
 		}
