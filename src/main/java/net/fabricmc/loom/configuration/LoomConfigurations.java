@@ -26,9 +26,9 @@ package net.fabricmc.loom.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.inject.Inject;
 
+import band.kessoku.koom.KoomGradleExtension;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -217,6 +217,10 @@ public abstract class LoomConfigurations implements Runnable {
 				getDependencies().add(Constants.Configurations.FORGE_EXTRA, LoomVersions.MIXIN_REMAPPER_SERVICE.mavenNotation());
 				getDependencies().add(Constants.Configurations.FORGE_EXTRA, LoomVersions.MCP_ANNOTATIONS.mavenNotation());
 			}
+		}
+		KoomGradleExtension koomGradleExtension = getProject().getExtensions().findByType(KoomGradleExtension.class);
+		if (koomGradleExtension != null) {
+			koomGradleExtension.registerDependency();
 		}
 	}
 
