@@ -65,7 +65,7 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 				if (project.getGradle().getPlugins().hasPlugin(LoomRepositoryPlugin.class)) {
 					return;
 				}
-				project.getExtensions().create("kessoku", KessokuExtension.class);
+				project.getExtensions().create("kessoku", KessokuExtension.class,project);
 
 				additionalRepositories(project.getRepositories());
 				declareRepositories(project.getRepositories(), LoomFiles.create(project), project);

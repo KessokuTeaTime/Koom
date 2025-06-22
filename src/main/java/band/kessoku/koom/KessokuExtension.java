@@ -45,7 +45,6 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.plugins.BasePluginExtension;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
@@ -53,23 +52,26 @@ import net.fabricmc.loom.api.LoomGradleExtensionAPI;
 import net.fabricmc.loom.task.RemapJarTask;
 
 public abstract class KessokuExtension {
-	@Inject
-	protected abstract Project getProject();
 
-	Project project = getProject();
-	ArchitectPluginExtension arch = getProject().getExtensions().getByType(ArchitectPluginExtension.class);
-	DependencyHandler dependencies = project.getDependencies();
+	private final Project project;
+	private final DependencyHandler dependencies;
 
 	private PlatformIdentifier platform;
 	private final List<String> modules = new ArrayList<>();
 
 	public static final String[] PLATFORMS = new String[] { "fabric", "neo", "common" };
 
+	@Inject
+	public KessokuExtension(Project project){
+		this.project = project;
+		this.dependencies = project.getDependencies();
+	}
+
 	public void include(String module) {
 		modules.add(module);
 		module = ":" + module;
 		String finalModule = module;
-		getProject().getGradle().beforeSettings(settings -> {
+		project.getGradle().beforeSettings(settings -> {
 			settings.include(finalModule);
 			for (String platform : PLATFORMS) {
 				settings.include(finalModule + ":" + platform);
@@ -87,6 +89,7 @@ public abstract class KessokuExtension {
 	}
 
 	public void common(Object loader) {
+		var arch = project.getExtensions().getByType(ArchitectPluginExtension.class);
 		platform = PlatformIdentifier.COMMON;
 		arch.common("fabric", "neoforge");
 
@@ -95,6 +98,7 @@ public abstract class KessokuExtension {
 	}
 
 	public void neoforge(Object neoforge) {
+		var arch = project.getExtensions().getByType(ArchitectPluginExtension.class);
 		platform = PlatformIdentifier.NEO;
 		arch.platformSetupLoomIde();
 		arch.neoForge();
@@ -108,6 +112,7 @@ public abstract class KessokuExtension {
 	}
 
 	public void fabric(Object... fabric) {
+		var arch = project.getExtensions().getByType(ArchitectPluginExtension.class);
 		platform = PlatformIdentifier.FABRIC;
 		arch.platformSetupLoomIde();
 		arch.fabric();
@@ -148,7 +153,6 @@ public abstract class KessokuExtension {
 	}
 
 	public void library(String lib) {
-		Project project = this.getProject();
 		DependencyHandler dependencies = project.getDependencies();
 
 		Dependency dependency = dependencies.project(Map.of(
