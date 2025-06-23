@@ -44,7 +44,7 @@ import net.fabricmc.loom.util.MirrorUtil;
 
 public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 	private static final List<String> FORGE_GROUPS = List.of(
-			"net.neoforged",
+			"net.minecraftforge",
 			"cpw.mods",
 			"de.oceanlabs",
 			"net.jodah",

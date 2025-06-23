@@ -24,6 +24,7 @@
 
 package net.fabricmc.loom.util;
 
+import org.gradle.api.artifacts.dsl.Dependencies;
 import org.jetbrains.annotations.ApiStatus;
 import org.objectweb.asm.Opcodes;
 
