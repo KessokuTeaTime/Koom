@@ -5,7 +5,7 @@ plugins {
 }
 
 allprojects {
-	apply plugin: "dev.architectury.loom"
+	apply plugin: "band.kessoku.koom"
 
 	version = "1.0.0"
 
