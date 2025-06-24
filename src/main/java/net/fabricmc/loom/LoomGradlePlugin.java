@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import band.kessoku.koom.KessokuExtension;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -86,12 +87,12 @@ public class LoomGradlePlugin implements Plugin<PluginAware> {
 		if (!loggedVersions.contains(LOOM_VERSION)) {
 			loggedVersions.add(LOOM_VERSION);
 			System.setProperty("loom.printed.logged", String.join(",", loggedVersions));
-			project.getLogger().lifecycle("Architectury Loom: " + LOOM_VERSION);
+			project.getLogger().lifecycle("Koom: " + LOOM_VERSION);
 
 			if (Constants.PLUGIN_BETA) {
-				project.getLogger().lifecycle("This version of Architectury Loom is in beta! Please report any issues you encounter: https://github.com/architectury/architectury-loom/issues");
+				project.getLogger().lifecycle("This version of Koom is in beta! Please report any issues you encounter: https://github.com/KessokuTeaTime/koom/issues");
 			} else if (Constants.PLUGIN_DEPRECATED) {
-				project.getLogger().lifecycle("You are using an outdated version of Architectury Loom! This version will not receive any support, please consider updating!");
+				project.getLogger().lifecycle("You are using an outdated version of Koom! This version will not receive any support, please consider updating!");
 			}
 		}
 
@@ -104,6 +105,7 @@ public class LoomGradlePlugin implements Plugin<PluginAware> {
 		// Setup extensions
 		project.getExtensions().create(LoomGradleExtensionAPI.class, "loom", LoomGradleExtensionImpl.class, project, LoomFiles.create(project));
 		project.getExtensions().create(FabricApiExtension.class, "fabricApi", FabricApiExtensionImpl.class);
+		//project.getExtensions().create("kessoku", KessokuExtension.class);
 
 		for (Class<? extends Runnable> jobClass : SETUP_JOBS) {
 			project.getObjects().newInstance(jobClass).run();

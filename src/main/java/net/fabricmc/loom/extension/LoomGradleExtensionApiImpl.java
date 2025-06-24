@@ -36,6 +36,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import band.kessoku.koom.KessokuExtension;
+import band.kessoku.koom.PlatformIdentifier;
 import com.google.common.base.Suppliers;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -132,7 +134,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	// ===================
 	//  Architectury Loom
 	// ===================
-	private Provider<ModPlatform> platform;
+	public Provider<ModPlatform> platform;
 	private final Property<Boolean> silentMojangMappingsLicense;
 	public Boolean generateSrgTiny = null;
 	private final List<String> tasksBeforeRun = Collections.synchronizedList(new ArrayList<>());
