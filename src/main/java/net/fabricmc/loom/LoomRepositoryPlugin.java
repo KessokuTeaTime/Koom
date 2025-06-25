@@ -55,7 +55,6 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 	public void apply(@NotNull PluginAware target) {
 		switch (target) {
 			case Settings settings -> {
-				additionalRepositories(settings.getDependencyResolutionManagement().getRepositories());
 				declareRepositories(settings.getDependencyResolutionManagement().getRepositories(), LoomFiles.create(settings), settings);
 
 				// leave a marker so projects don't try to override these
@@ -67,37 +66,12 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 				}
 				project.getExtensions().create("kessoku", KessokuExtension.class,project);
 
-				additionalRepositories(project.getRepositories());
 				declareRepositories(project.getRepositories(), LoomFiles.create(project), project);
 			}
 			case Gradle ignored -> {}
 			default ->
 					throw new IllegalArgumentException("Expected target to be a Project or Settings, but was a " + target.getClass());
 		}
-	}
-
-	public void additionalRepositories(RepositoryHandler repositories) {
-		repositories.maven(repo -> {
-			repo.setName("NeoForge");
-			repo.setUrl("https://maven.neoforged.net/releases/");
-		});
-
-		repositories.maven(repo -> {
-			repo.setName("AmarokIce's Maven");
-			repo.setUrl("http://maven.snowlyicewolf.club/");
-			repo.setAllowInsecureProtocol(true);
-			repo.mavenContent(context -> {
-				context.includeGroupByRegex("club\\.someoneice\\..*");
-			});
-		});
-
-		repositories.maven(repo -> {
-			repo.setName("Jitpack Maven");
-			repo.setUrl("https://jitpack.io");
-			repo.mavenContent(context -> {
-				context.includeGroupByRegex("com\\.github\\..*");
-			});
-		});
 	}
 
 	private void declareRepositories(RepositoryHandler repositories, LoomFiles files, ExtensionAware target) {
@@ -144,6 +118,14 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			repo.metadataSources(sources -> {
 				sources.mavenPom();
 				sources.ignoreGradleMetadataRedirection();
+			});
+		});
+
+		repositories.maven(repo -> {
+			repo.setName("NeoForge");
+			repo.setUrl("https://maven.neoforged.net/releases/");
+			repo.mavenContent(content -> {
+				content.includeGroup("net.neoforged");
 			});
 		});
 
