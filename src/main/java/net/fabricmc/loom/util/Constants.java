@@ -24,11 +24,12 @@
 
 package net.fabricmc.loom.util;
 
+import org.gradle.api.artifacts.dsl.Dependencies;
 import org.jetbrains.annotations.ApiStatus;
 import org.objectweb.asm.Opcodes;
 
 public class Constants {
-	public static final String PLUGIN_ID = "dev.architectury.loom";
+	public static final String PLUGIN_ID = "band.kessoku.koom";
 	public static final boolean PLUGIN_BETA = true;
 	public static final boolean PLUGIN_DEPRECATED = false;
 	public static final String LIBRARIES_BASE = "https://libraries.minecraft.net/";
