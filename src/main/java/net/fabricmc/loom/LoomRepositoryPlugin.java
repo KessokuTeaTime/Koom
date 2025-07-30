@@ -26,7 +26,6 @@ package net.fabricmc.loom;
 
 import java.util.List;
 
-import band.kessoku.koom.KessokuExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
@@ -64,7 +63,6 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 				if (project.getGradle().getPlugins().hasPlugin(LoomRepositoryPlugin.class)) {
 					return;
 				}
-				project.getExtensions().create("kessoku", KessokuExtension.class,project);
 
 				declareRepositories(project.getRepositories(), LoomFiles.create(project), project);
 			}

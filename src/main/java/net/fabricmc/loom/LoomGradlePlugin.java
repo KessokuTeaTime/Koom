@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import band.kessoku.koom.KessokuExtension;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

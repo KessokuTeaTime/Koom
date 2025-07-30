@@ -36,8 +36,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import band.kessoku.koom.KessokuExtension;
-import band.kessoku.koom.PlatformIdentifier;
 import com.google.common.base.Suppliers;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
