@@ -20,4 +20,5 @@ jobs:
       - name: Upload to Maven
         run: ./gradlew publish --stacktrace
         env:
-          CLOUDSMITH_MAVEN_TOKEN: ${{ secrets.CLOUDSMITH_MAVEN_TOKEN }}
+          KTT_MAVEN_USERNAME: ${{ secrets.KTT_MAVEN_USERNAME }}
+          KTT_MAVEN_TOKEN: ${{ secrets.KTT_MAVEN_TOKEN }}
