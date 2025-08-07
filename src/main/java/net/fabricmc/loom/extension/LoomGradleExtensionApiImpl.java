@@ -132,7 +132,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	// ===================
 	//  Architectury Loom
 	// ===================
-	public Provider<ModPlatform> platform;
+	public Property<ModPlatform> platform;
 	private final Property<Boolean> silentMojangMappingsLicense;
 	public Boolean generateSrgTiny = null;
 	private final List<String> tasksBeforeRun = Collections.synchronizedList(new ArrayList<>());
@@ -218,7 +218,8 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 		interfaceInjection(interfaceInjection -> {
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
-		this.platform = project.provider(Suppliers.memoize(() -> {
+
+		this.platform = project.getObjects().property(ModPlatform.class).convention(project.provider(Suppliers.memoize(() -> {
 			Object platformProperty = GradleUtils.getProperty(project, PLATFORM_PROPERTY);
 
 			if (platformProperty != null) {
@@ -239,7 +240,9 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			}
 
 			return ModPlatform.FABRIC;
-		})::get);
+		})::get));
+		this.platform.finalizeValueOnRead();
+
 		this.silentMojangMappingsLicense = project.getObjects().property(Boolean.class).convention(false);
 		this.silentMojangMappingsLicense.finalizeValueOnRead();
 	}
