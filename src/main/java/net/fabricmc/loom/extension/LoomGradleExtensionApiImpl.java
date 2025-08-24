@@ -537,8 +537,13 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	}
 
 	@Override
-	public Provider<ModPlatform> getPlatform() {
+	public Property<ModPlatform> getPlatform() {
 		return platform;
+	}
+
+	@Override
+	public void setPlatform(String modPlatform) {
+		platform.set(ModPlatform.valueOf(modPlatform.toUpperCase(Locale.ROOT)));
 	}
 
 	@Override

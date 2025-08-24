@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import band.kessoku.koom.LayeredMappingsExtension;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -104,7 +105,7 @@ public class LoomGradlePlugin implements Plugin<PluginAware> {
 		// Setup extensions
 		project.getExtensions().create(LoomGradleExtensionAPI.class, "loom", LoomGradleExtensionImpl.class, project, LoomFiles.create(project));
 		project.getExtensions().create(FabricApiExtension.class, "fabricApi", FabricApiExtensionImpl.class);
-		//project.getExtensions().create("kessoku", KessokuExtension.class);
+		project.getExtensions().create("layeredMappings", LayeredMappingsExtension.class);
 
 		for (Class<? extends Runnable> jobClass : SETUP_JOBS) {
 			project.getObjects().newInstance(jobClass).run();

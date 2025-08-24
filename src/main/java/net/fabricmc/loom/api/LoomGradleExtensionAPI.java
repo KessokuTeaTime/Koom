@@ -267,7 +267,9 @@ public interface LoomGradleExtensionAPI {
 
 	boolean isSilentMojangMappingsLicenseEnabled();
 
-	Provider<ModPlatform> getPlatform();
+	Property<ModPlatform> getPlatform();
+
+	void setPlatform(String modPlatform);
 
 	default boolean isForgeLike() {
 		return getPlatform().get().isForgeLike();
@@ -279,6 +281,10 @@ public interface LoomGradleExtensionAPI {
 
 	default boolean isNeoForge() {
 		return getPlatform().get() == ModPlatform.NEOFORGE;
+	}
+
+	default boolean isFabric() {
+		return getPlatform().get() == ModPlatform.FABRIC;
 	}
 
 	default boolean isQuilt() {
