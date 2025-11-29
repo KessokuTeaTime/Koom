@@ -130,7 +130,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	// ===================
 	//  Architectury Loom
 	// ===================
-	private Provider<ModPlatform> platform;
+	private Property<ModPlatform> platform;
 	private final Property<Boolean> silentMojangMappingsLicense;
 	public Boolean generateSrgTiny = null;
 	private final List<String> tasksBeforeRun = Collections.synchronizedList(new ArrayList<>());
@@ -217,7 +217,8 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 		interfaceInjection(interfaceInjection -> {
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
-		this.platform = project.provider(Lazy.of(() -> {
+
+		this.platform = project.getObjects().property(ModPlatform.class).convention(project.provider(Lazy.of(() -> {
 			Object platformProperty = GradleUtils.getProperty(project, PLATFORM_PROPERTY);
 
 			if (platformProperty != null) {
@@ -238,7 +239,9 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			}
 
 			return ModPlatform.FABRIC;
-		})::get);
+		})::get));
+		this.platform.finalizeValueOnRead();
+
 		this.silentMojangMappingsLicense = project.getObjects().property(Boolean.class).convention(false);
 		this.silentMojangMappingsLicense.finalizeValueOnRead();
 	}
@@ -574,8 +577,13 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	}
 
 	@Override
-	public Provider<ModPlatform> getPlatform() {
+	public Property<ModPlatform> getPlatform() {
 		return platform;
+	}
+
+	@Override
+	public void setPlatform(String modPlatform) {
+		this.platform.set(ModPlatform.valueOf(modPlatform.toUpperCase(Locale.ROOT)));
 	}
 
 	@Override
