@@ -36,4 +36,5 @@ jobs:
       - name: Upload to Maven
         run: ./gradlew publish --stacktrace
         env:
-          MAVEN_PASS: ${{ secrets.MAVEN_PASS }}
+          KTT_MAVEN_USERNAME: ${{ secrets.KTT_MAVEN_USERNAME }}
+          KTT_MAVEN_TOKEN: ${{ secrets.KTT_MAVEN_TOKEN }}
