@@ -59,6 +59,7 @@ import net.fabricmc.loom.configuration.ide.idea.IdeaUtils;
 import net.fabricmc.loom.configuration.providers.BundleMetadata;
 import net.fabricmc.loom.configuration.providers.minecraft.library.LibraryContext;
 import net.fabricmc.loom.util.Constants;
+import net.fabricmc.loom.util.gradle.GradleUtils;
 import net.fabricmc.loom.util.gradle.SourceSetReference;
 
 public class RunConfig {
@@ -76,6 +77,7 @@ public class RunConfig {
 	public Map<String, Object> environmentVariables;
 	public String projectName;
 	public String folderName;
+	public String name;
 
 	// Turns camelCase/PascalCase into Capital Case
 	// caseConversionExample -> Case Conversion Example
@@ -134,8 +136,9 @@ public class RunConfig {
 		boolean appendProjectPath = settings.getAppendProjectPathToConfigName().get();
 		RunConfig runConfig = new RunConfig();
 		runConfig.configName = configName;
+		runConfig.name = name;
 
-		if (appendProjectPath && !extension.isRootProject()) {
+		if (appendProjectPath && !GradleUtils.isRootProject(project)) {
 			runConfig.configName += " (" + project.getPath() + ")";
 		}
 

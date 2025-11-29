@@ -23,7 +23,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 group = "band.kessoku"
-def baseVersion = '1.11'
+def baseVersion = '1.13'
 
 def ENV = System.getenv()
 def runNumber = ENV.GITHUB_RUN_NUMBER ?: "9999"
@@ -73,6 +73,12 @@ configurations.configureEach {
 	}
 }
 
+// Arch: Prevent compiling against Guava.
+// The dependency is still leaked from DFU, but it shouldn't be used to keep up with upstream standards.
+configurations.named('compileClasspath') {
+	exclude group: 'com.google.guava'
+}
+
 sourceSets {
 	commonDecompiler {
 		java {
@@ -100,9 +106,7 @@ dependencies {
 	implementation gradleApi()
 
 	// libraries
-	implementation libs.commons.io
 	implementation libs.gson
-	implementation libs.guava
 	implementation libs.bundles.asm
 
 	// game handling utils
@@ -113,7 +117,7 @@ dependencies {
 
 	// tinyfile management
 	implementation libs.fabric.tiny.remapper
-	implementation libs.fabric.access.widener
+	implementation libs.fabric.clazz.tweaker
 	implementation libs.fabric.mapping.io
 	implementation (libs.fabric.lorenz.tiny) {
 		transitive = false
@@ -143,6 +147,7 @@ dependencies {
 
 	// source code remapping
 	implementation libs.fabric.mercury
+	implementation libs.fabric.mercury.mixin
 
 	implementation libs.fabric.unpick
 	implementation libs.fabric.unpick.utils
@@ -156,7 +161,6 @@ dependencies {
 	compileOnly libs.kotlin.gradle.plugin
 
 	// Forge patches
-	implementation libs.forge.installer.tools
 	implementation libs.lorenz
 	implementation libs.mcinjector
 	implementation libs.opencsv
@@ -185,6 +189,7 @@ dependencies {
 	testImplementation testLibs.bcprov
 	testImplementation testLibs.bcutil
 	testImplementation testLibs.bcpkix
+	testImplementation testLibs.fabric.loader
 
 	compileOnly runtimeLibs.jetbrains.annotations
 	testCompileOnly runtimeLibs.jetbrains.annotations
@@ -259,13 +264,6 @@ checkstyle {
 	toolVersion = libs.versions.checkstyle.get()
 }
 
-// Workaround https://github.com/gradle/gradle/issues/27035
-configurations.checkstyle {
-	resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
-		select("com.google.guava:guava:0")
-	}
-}
-
 codenarc {
 	toolVersion = libs.versions.codenarc.get()
 	configFile = file("codenarc.groovy")
@@ -276,6 +274,10 @@ gradlePlugin {
 		fabricLoom {
 			id = 'band.kessoku.koom'
 			implementationClass = 'net.fabricmc.loom.LoomGradlePlugin'
+		}
+		fabricLoomCompanion {
+			id = 'band.kessoku.koom-companion'
+			implementationClass = 'net.fabricmc.loom.LoomCompanionGradlePlugin'
 		}
 	}
 }
@@ -332,25 +334,27 @@ publishing {
 				from components.java
 			}
 
-			// Manually crate the plugin marker for snapshot versions
-			snapshotPlugin(MavenPublication) {
-				groupId = 'band.kessoku.koom'
-				artifactId = 'band.kessoku.koom.gradle.plugin'
-				version = baseVersion + '-SNAPSHOT'
+			gradlePlugin.plugins.forEach { plugin ->
+				// Manually crate the plugin marker for snapshot versions
+				it.create(plugin.id + "SnapshotMarker", MavenPublication) { publication ->
+					groupId = plugin.id
+					artifactId = plugin.id + '.gradle.plugin'
+					version = baseVersion + '-SNAPSHOT'
 
-				pom.withXml({
-					// Based off org.gradle.plugin.devel.plugins.MavenPluginPublishPlugin
-					Element root = asElement()
-					Document document = root.getOwnerDocument()
-					Node dependencies = root.appendChild(document.createElement('dependencies'))
-					Node dependency = dependencies.appendChild(document.createElement('dependency'))
-					Node groupId = dependency.appendChild(document.createElement('groupId'))
-					groupId.setTextContent(project.group)
-					Node artifactId = dependency.appendChild(document.createElement('artifactId'))
-					artifactId.setTextContent(project.archivesBaseName)
-					Node version = dependency.appendChild(document.createElement('version'))
-					version.setTextContent(baseVersion + '-SNAPSHOT')
-				})
+					pom.withXml({
+						// Based off org.gradle.plugin.devel.plugins.MavenPluginPublishPlugin
+						Element root = asElement()
+						Document document = root.getOwnerDocument()
+						Node dependencies = root.appendChild(document.createElement('dependencies'))
+						Node dependency = dependencies.appendChild(document.createElement('dependency'))
+						Node groupId = dependency.appendChild(document.createElement('groupId'))
+						groupId.setTextContent(project.group)
+						Node artifactId = dependency.appendChild(document.createElement('artifactId'))
+						artifactId.setTextContent(project.archivesBaseName)
+						Node version = dependency.appendChild(document.createElement('version'))
+						version.setTextContent(project.version)
+					})
+				}
 			}
 		}
 	}
