@@ -117,6 +117,14 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			});
 		});
 
+		repositories.maven(repo -> {
+			repo.setName("NeoForge");
+			repo.setUrl("https://maven.neoforged.net/releases/");
+			repo.mavenContent(content -> {
+				content.includeGroup("net.neoforged");
+			});
+		});
+
 		// If a mavenCentral repo is already defined, remove the mojang repo and add it back before the mavenCentral repo so that it will be checked first.
 		// See: https://github.com/FabricMC/fabric-loom/issues/621
 		ArtifactRepository mavenCentral = repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME);

@@ -22,7 +22,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 	}
 }
 
-group = "dev.architectury"
+group = "band.kessoku"
 def baseVersion = '1.11'
 
 def ENV = System.getenv()
@@ -226,6 +226,7 @@ spotless {
 		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
 		targetExclude("**/loom/util/DownloadUtil.java", "**/loom/util/FileSystemUtil.java")
 		targetExclude("**/dev/architectury/**")
+		targetExclude("**/band/kessoku/**")
 	}
 
 	groovy {
@@ -273,7 +274,7 @@ codenarc {
 gradlePlugin {
 	plugins {
 		fabricLoom {
-			id = 'dev.architectury.loom'
+			id = 'band.kessoku.koom'
 			implementationClass = 'net.fabricmc.loom.LoomGradlePlugin'
 		}
 	}
@@ -333,8 +334,8 @@ publishing {
 
 			// Manually crate the plugin marker for snapshot versions
 			snapshotPlugin(MavenPublication) {
-				groupId = 'dev.architectury.loom'
-				artifactId = 'dev.architectury.loom.gradle.plugin'
+				groupId = 'band.kessoku.koom'
+				artifactId = 'band.kessoku.koom.gradle.plugin'
 				version = baseVersion + '-SNAPSHOT'
 
 				pom.withXml({
@@ -355,13 +356,13 @@ publishing {
 	}
 
 	repositories {
-		if (ENV.MAVEN_PASS != null) {
-			maven {
-				url = "https://deploy.shedaniel.me/"
-				credentials {
-					username = "shedaniel"
-					password = ENV.MAVEN_PASS
-				}
+		maven {
+			name = "KTTMaven"
+			url = "https://maven.kessokuteatime.work/releases"
+
+			credentials {
+				username = System.getenv("KTT_MAVEN_USERNAME")
+				password = System.getenv("KTT_MAVEN_TOKEN")
 			}
 		}
 	}
