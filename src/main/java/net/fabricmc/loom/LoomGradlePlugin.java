@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import band.kessoku.koom.extension.ForgifiedFabricApiExtension;
+import band.kessoku.koom.extension.SimpleMappingsExtension;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.gradle.api.Plugin;
@@ -107,6 +109,8 @@ public class LoomGradlePlugin implements Plugin<PluginAware> {
 		// Setup extensions
 		project.getExtensions().create(LoomGradleExtensionAPI.class, "loom", LoomGradleExtensionImpl.class, project, LoomFiles.create(project));
 		project.getExtensions().create(FabricApiExtension.class, "fabricApi", FabricApiExtensionImpl.class);
+		project.getExtensions().create("forgifiedFabricApi", ForgifiedFabricApiExtension.class);
+		project.getExtensions().create("simpleMappings", SimpleMappingsExtension.class);
 
 		for (Class<? extends Runnable> jobClass : SETUP_JOBS) {
 			project.getObjects().newInstance(jobClass).run();
