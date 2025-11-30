@@ -26,29 +26,21 @@ package dev.architectury.loom.forge.dependency;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
-import dev.architectury.loom.forge.config.InstallProfile;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Nullable;
 
 import net.fabricmc.loom.configuration.DependencyInfo;
 import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.FileSystemUtil;
-import net.fabricmc.loom.util.ZipUtils;
 
 public class PatchProvider extends DependencyProvider {
 	private final Path projectCacheFolder;
 	private File installerJar;
-	private JsonObject json;
-	private InstallProfile installProfile;
 	private @Nullable Path clientPatches;
 	private @Nullable Path serverPatches;
 
@@ -61,27 +53,13 @@ public class PatchProvider extends DependencyProvider {
 	public void provide(DependencyInfo dependency) throws Exception {
 		init();
 
-		installerJar = new File(getExtension().getForgeProvider().getGlobalCache(), "forge-installer.jar");
-		Path installProfileJson = getExtension().getForgeProvider().getGlobalCache().toPath().resolve("forge-installProfile.json");
-
-		if (Files.notExists(installProfileJson) || refreshDeps()) {
-			File resolved = dependency.resolveFile().orElseThrow(() -> new RuntimeException("Could not resolve Forge installer"));
-			Files.copy(resolved.toPath(), installerJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			Files.write(installProfileJson, ZipUtils.unpack(resolved.toPath(), "install_profile.json"));
-		}
-
-		try (Reader reader = Files.newBufferedReader(installProfileJson)) {
-			json = new Gson().fromJson(reader, JsonObject.class);
-			installProfile = InstallProfile.CODEC.parse(JsonOps.INSTANCE, json)
-					.getOrThrow(false, msg -> getProject().getLogger().error("Couldn't read installer install profile, {}", msg));
-		}
+		installerJar = dependency.resolveFile().orElseThrow(() -> new RuntimeException("Could not resolve Forge installer"));
 	}
 
 	public Path extractClientPatches() {
 		if (clientPatches == null) {
 			clientPatches = projectCacheFolder.resolve("patches-client.lzma");
-			String binpatchName = installProfile.data().get("BINPATCH").client().replaceFirst("^/data/", "");
-			extractPatches(clientPatches, binpatchName);
+			extractPatches(clientPatches, "client.lzma");
 		}
 
 		return clientPatches;
@@ -90,8 +68,7 @@ public class PatchProvider extends DependencyProvider {
 	public Path extractServerPatches() {
 		if (serverPatches == null) {
 			serverPatches = projectCacheFolder.resolve("patches-server.lzma");
-			String binpatchName = installProfile.data().get("BINPATCH").server().replaceFirst("^/data/", "");
-			extractPatches(serverPatches, binpatchName);
+			extractPatches(serverPatches, "server.lzma");
 		}
 
 		return serverPatches;
@@ -121,13 +98,5 @@ public class PatchProvider extends DependencyProvider {
 	@Override
 	public String getTargetConfig() {
 		return Constants.Configurations.FORGE_INSTALLER;
-	}
-
-	public JsonObject getJson() {
-		return json;
-	}
-
-	public InstallProfile getInstallProfile() {
-		return installProfile;
 	}
 }
