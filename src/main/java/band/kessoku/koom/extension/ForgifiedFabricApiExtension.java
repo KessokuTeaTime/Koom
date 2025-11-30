@@ -1,8 +1,13 @@
 package band.kessoku.koom.extension;
 
-import net.fabricmc.loom.LoomGradleExtension;
+import java.io.File;
+import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.fabricmc.loom.util.download.DownloadException;
+import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
@@ -10,29 +15,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import java.io.File;
-import java.io.UncheckedIOException;
-import java.util.HashMap;
-import java.util.Map;
+import net.fabricmc.loom.LoomGradleExtension;
+import net.fabricmc.loom.util.download.DownloadException;
 
 /**
  * A gradle extension with specific functionality related to Forgified Fabric API.
  */
 public abstract class ForgifiedFabricApiExtension {
-	@Inject
-	protected abstract Project getProject();
-
 	private final HashMap<String, Map<String, String>> moduleVersionCache = new HashMap<>();
 	private boolean isSinytraVersion;
+
+	@Inject
+	protected abstract Project getProject();
 
 	/**
 	 * Get a {@link Dependency} for a given Forgified Fabric API module.
 	 *
-	 * @param moduleName The name of the module.
+	 * @param moduleName       The name of the module.
 	 * @param fabricApiVersion The main Forgified Fabric API version.
 	 * @param isSinytraVersion Use the Sinytra version or the ThinkingStudio version.
 	 * @return A {@link Dependency} for the module.
@@ -45,7 +44,8 @@ public abstract class ForgifiedFabricApiExtension {
 
 	/**
 	 * Get the version of a Forgified Fabric API module.
-	 * @param moduleName The name of the module.
+	 *
+	 * @param moduleName       The name of the module.
 	 * @param fabricApiVersion The main Forgified Fabric API version.
 	 * @return The version of the module.
 	 */

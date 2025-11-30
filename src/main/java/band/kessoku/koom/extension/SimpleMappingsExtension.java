@@ -1,11 +1,11 @@
 package band.kessoku.koom.extension;
 
-import net.fabricmc.loom.LoomGradleExtension;
+import javax.inject.Inject;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 
-import javax.inject.Inject;
+import net.fabricmc.loom.LoomGradleExtension;
 
 public abstract class SimpleMappingsExtension {
 	@Inject
