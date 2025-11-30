@@ -1,17 +1,11 @@
 package dev.architectury.loom.forge.config;
 
+import java.util.Map;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.util.Map;
-
-public record InstallProfile(
-		String profile,
-		String version,
-		String minecraft,
-		Map<String, Data> data
-) {
-
+public record InstallProfile(String profile, String version, String minecraft, Map<String, Data> data) {
 	public static final Codec<InstallProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.STRING.fieldOf("profile").forGetter(InstallProfile::profile),
 			Codec.STRING.fieldOf("version").forGetter(InstallProfile::version),
