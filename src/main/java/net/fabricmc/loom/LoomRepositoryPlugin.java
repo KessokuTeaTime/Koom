@@ -121,8 +121,13 @@ public class LoomRepositoryPlugin implements Plugin<PluginAware> {
 			repo.setName("NeoForge");
 			repo.setUrl("https://maven.neoforged.net/releases/");
 			repo.mavenContent(content -> {
-				content.includeGroup("net.neoforged");
+				content.includeGroupAndSubgroups("net.neoforged");
 			});
+		});
+
+		repositories.maven(repo -> {
+			repo.setName("KessokuTeaTime");
+			repo.setUrl("https://maven.kessokuteatime.work/releases/");
 		});
 
 		// If a mavenCentral repo is already defined, remove the mojang repo and add it back before the mavenCentral repo so that it will be checked first.
