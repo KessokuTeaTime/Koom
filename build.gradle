@@ -22,7 +22,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 	}
 }
 
-group = "dev.architectury"
+group = "band.kessoku"
 def baseVersion = '1.13'
 
 def ENV = System.getenv()
@@ -271,11 +271,11 @@ codenarc {
 gradlePlugin {
 	plugins {
 		fabricLoom {
-			id = 'dev.architectury.loom'
+			id = 'band.kessoku.koom'
 			implementationClass = 'net.fabricmc.loom.LoomGradlePlugin'
 		}
 		fabricLoomCompanion {
-			id = 'dev.architectury.loom-companion'
+			id = 'band.kessoku.koom-companion'
 			implementationClass = 'net.fabricmc.loom.LoomCompanionGradlePlugin'
 		}
 	}
@@ -359,13 +359,13 @@ publishing {
 	}
 
 	repositories {
-		if (ENV.MAVEN_PASS != null) {
-			maven {
-				url = "https://deploy.shedaniel.me/"
-				credentials {
-					username = "shedaniel"
-					password = ENV.MAVEN_PASS
-				}
+		maven {
+			name = "KTTMaven"
+			url = "https://maven.kessokuteatime.work/releases"
+
+			credentials {
+				username = System.getenv("KTT_MAVEN_USERNAME")
+				password = System.getenv("KTT_MAVEN_TOKEN")
 			}
 		}
 	}
