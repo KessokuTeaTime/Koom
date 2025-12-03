@@ -39,8 +39,8 @@ import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.FileSystemUtil;
 
 public class PatchProvider extends DependencyProvider {
-	private final Path projectCacheFolder;
-	private File installerJar;
+	private Path projectCacheFolder;
+	private Path installerJar;
 	private @Nullable Path clientPatches;
 	private @Nullable Path serverPatches;
 
@@ -52,8 +52,7 @@ public class PatchProvider extends DependencyProvider {
 	@Override
 	public void provide(DependencyInfo dependency) throws Exception {
 		init();
-
-		installerJar = dependency.resolveFile().orElseThrow(() -> new RuntimeException("Could not resolve Forge installer"));
+		installerJar = dependency.resolveFile().orElseThrow(() -> new RuntimeException("Could not resolve Forge installer")).toPath();
 	}
 
 	public Path extractClientPatches() {
@@ -88,6 +87,8 @@ public class PatchProvider extends DependencyProvider {
 	}
 
 	private void init() {
+		this.projectCacheFolder = ForgeProvider.getForgeCache(getProject());
+
 		try {
 			Files.createDirectories(projectCacheFolder);
 		} catch (IOException e) {
