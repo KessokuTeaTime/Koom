@@ -45,7 +45,6 @@ public class PatchProvider extends DependencyProvider {
 
 	public PatchProvider(Project project) {
 		super(project);
-		this.projectCacheFolder = ForgeProvider.getForgeCache(project);
 	}
 
 	@Override
