@@ -236,7 +236,6 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 
 			return ModPlatform.FABRIC;
 		}));
-		this.platform.finalizeValueOnRead();
 
 		this.silentMojangMappingsLicense = project.getObjects().property(Boolean.class).convention(false);
 		this.silentMojangMappingsLicense.finalizeValueOnRead();
