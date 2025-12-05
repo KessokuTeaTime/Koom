@@ -79,7 +79,6 @@ import net.fabricmc.loom.configuration.providers.minecraft.MinecraftMetadataProv
 import net.fabricmc.loom.configuration.providers.minecraft.MinecraftSourceSets;
 import net.fabricmc.loom.task.GenerateSourcesTask;
 import net.fabricmc.loom.util.DeprecationHelper;
-import net.fabricmc.loom.util.Lazy;
 import net.fabricmc.loom.util.MirrorUtil;
 import net.fabricmc.loom.util.ModPlatform;
 import net.fabricmc.loom.util.fmj.FabricModJson;
@@ -218,11 +217,15 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 			interfaceInjection.getEnableDependencyInterfaceInjection().convention(true).finalizeValueOnRead();
 		});
 
-		this.platform = project.getObjects().property(ModPlatform.class).convention(project.provider(Lazy.of(() -> {
-			Object platformProperty = GradleUtils.getProperty(project, PLATFORM_PROPERTY);
+		this.platform = project.getObjects().property(ModPlatform.class).convention(project.provider(() -> {
+			Object forgeProperty = GradleUtils.getProperty(project, FORGE_PROPERTY);
+			Provider<String> platformProperty = GradleUtils.getStringProperty(project, PLATFORM_PROPERTY).orElse("fabric");
 
-			if (platformProperty != null) {
-				ModPlatform platform = ModPlatform.valueOf(Objects.toString(platformProperty).toUpperCase(Locale.ROOT));
+			if (forgeProperty != null) {
+				project.getLogger().warn("Project " + project.getPath() + " is using property " + FORGE_PROPERTY + " to enable forge mode. Please use '" + PLATFORM_PROPERTY + " = forge' instead!");
+				return Boolean.parseBoolean(Objects.toString(forgeProperty)) ? ModPlatform.FORGE : ModPlatform.FABRIC;
+			} else if (platformProperty != null) {
+				ModPlatform platform = ModPlatform.valueOf(platformProperty.get().toUpperCase(Locale.ROOT));
 
 				if (platform.isExperimental()) {
 					project.getLogger().lifecycle("{} support is experimental. Please report any issues!", platform.displayName());
@@ -231,15 +234,8 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 				return platform;
 			}
 
-			Object forgeProperty = GradleUtils.getProperty(project, FORGE_PROPERTY);
-
-			if (forgeProperty != null) {
-				project.getLogger().warn("Project " + project.getPath() + " is using property " + FORGE_PROPERTY + " to enable forge mode. Please use '" + PLATFORM_PROPERTY + " = forge' instead!");
-				return Boolean.parseBoolean(Objects.toString(forgeProperty)) ? ModPlatform.FORGE : ModPlatform.FABRIC;
-			}
-
 			return ModPlatform.FABRIC;
-		})::get));
+		}));
 		this.platform.finalizeValueOnRead();
 
 		this.silentMojangMappingsLicense = project.getObjects().property(Boolean.class).convention(false);
@@ -583,7 +579,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 
 	@Override
 	public void setPlatform(String modPlatform) {
-		this.platform.set(ModPlatform.valueOf(modPlatform.toUpperCase(Locale.ROOT)));
+		platform.set(ModPlatform.valueOf(modPlatform.toUpperCase(Locale.ROOT)));
 	}
 
 	@Override

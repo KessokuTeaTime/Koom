@@ -123,6 +123,17 @@ public final class GradleUtils {
 		return project.findProperty(key);
 	}
 
+	public static Provider<String> getStringProperty(Project project, String key) {
+		LoomGradleExtension extension = LoomGradleExtension.get(project);
+
+		if (extension.isProjectIsolationActive()) {
+			// TODO write a custom property parser for isolated projects
+			return null;
+		}
+
+		return project.getProviders().gradleProperty(key);
+	}
+
 	// A hack to include the given file in the configuration cache input
 	// this ensures that configuration cache is invalidated when the file changes
 	public static File configurationInputFile(Project project, File file) {
