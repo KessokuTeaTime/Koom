@@ -578,11 +578,6 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 	}
 
 	@Override
-	public void setPlatform(String modPlatform) {
-		platform.set(ModPlatform.valueOf(modPlatform.toUpperCase(Locale.ROOT)));
-	}
-
-	@Override
 	public void setGenerateSrgTiny(Boolean generateSrgTiny) {
 		if (isNeoForge()) {
 			// This is unsupported because supporting the full 2x2 combination of

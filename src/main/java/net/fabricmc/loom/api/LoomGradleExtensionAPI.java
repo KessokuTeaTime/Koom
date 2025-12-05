@@ -285,8 +285,6 @@ public interface LoomGradleExtensionAPI {
 
 	Property<ModPlatform> getPlatform();
 
-	void setPlatform(String modPlatform);
-
 	default boolean isForgeLike() {
 		return getPlatform().get().isForgeLike();
 	}
