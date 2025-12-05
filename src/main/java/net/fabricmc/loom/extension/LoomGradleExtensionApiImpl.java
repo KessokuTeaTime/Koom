@@ -219,7 +219,7 @@ public abstract class LoomGradleExtensionApiImpl implements LoomGradleExtensionA
 
 		this.platform = project.getObjects().property(ModPlatform.class).convention(project.provider(() -> {
 			Object forgeProperty = GradleUtils.getProperty(project, FORGE_PROPERTY);
-			Provider<String> platformProperty = GradleUtils.getStringProperty(project, PLATFORM_PROPERTY).orElse("fabric");
+			Provider<String> platformProperty = project.getProviders().gradleProperty(PLATFORM_PROPERTY).orElse("fabric");
 
 			if (forgeProperty != null) {
 				project.getLogger().warn("Project " + project.getPath() + " is using property " + FORGE_PROPERTY + " to enable forge mode. Please use '" + PLATFORM_PROPERTY + " = forge' instead!");
